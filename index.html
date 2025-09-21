@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Profesional de Análisis de Riesgos | ISO 27005</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@2.6.2/src/wordcloud2.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        .widget { background-color: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); padding: 1.5rem; }
+        .loader { border: 8px solid #f3f3f3; border-radius: 50%; border-top: 8px solid #ef4444; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .tab-button { padding: 0.75rem 1.5rem; border-bottom: 4px solid transparent; transition: all 0.3s ease; font-weight: 500; color: #4b5563; }
+        .tab-button.active { border-color: #ef4444; color: #ef4444; font-weight: 700; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .kpi-value { font-size: 2.5rem; }
+        .heatmap-table { border-collapse: collapse; }
+        .heatmap-cell { border: 1px solid #ddd; padding: 0.5rem; text-align: center; width: 60px; height: 60px; }
+        .heatmap-cell span { font-size: 1.5rem; font-weight: bold; color: black; text-shadow: 0 0 2px white; }
+        .vertical-text { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div id="password-overlay" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center w-full max-w-sm">
+            <h2 class="text-2xl font-bold mb-4">Acceso de Administrador</h2>
+            <input type="password" id="password-input" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Contraseña">
+            <button id="password-submit" class="w-full mt-4 bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700">Ingresar</button>
+            <p id="password-error" class="text-red-500 text-sm mt-2 hidden">Contraseña incorrecta.</p>
+        </div>
+    </div>
+
+    <div id="dashboard-content" class="hidden">
+        <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-40">
+            <div class="flex items-center space-x-4">
+                <img src="https://logodownload.org/wp-content/uploads/2014/09/coca-cola-logo-1.png" alt="Logo" class="h-10">
+                <h1 class="text-2xl font-bold text-gray-800">Dashboard Profesional de Análisis de Riesgos</h1>
+            </div>
+            <div>
+                <button id="refresh-data-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 mr-4">Actualizar Datos</button>
+                <button id="export-pdf-btn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 disabled:opacity-50" disabled>Exportar a PDF</button>
+            </div>
+        </header>
+
+        <main class="p-4 sm:p-8">
+            <div id="loading-container" class="widget text-center py-10">
+                <div class="loader mx-auto"></div>
+                <p id="loading-text" class="mt-4 text-lg font-semibold text-gray-600">Conectando con Google Sheets...</p>
+            </div>
+
+            <div id="analytics-section" class="hidden">
+                <div class="widget mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-700">Filtros Globales (Segmentación de Datos)</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div><label for="filter-gerencia" class="block text-sm font-medium text-gray-600">Dirección / Gerencia</label><select id="filter-gerencia" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></select></div>
+                        <div><label for="filter-antiguedad" class="block text-sm font-medium text-gray-600">Años de Antigüedad</label><select id="filter-antiguedad" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></select></div>
+                        <div><label for="filter-sexo" class="block text-sm font-medium text-gray-600">Género</label><select id="filter-sexo" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></select></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md mb-8">
+                    <nav id="tabs-nav" class="flex flex-wrap border-b border-gray-200">
+                        <button class="tab-button active" data-tab="tab-principal">Dashboard Principal</button>
+                        <button class="tab-button" data-tab="tab-estrategico">Análisis Estratégico</button>
+                        <button class="tab-button" data-tab="tab-preguntas">Análisis por Pregunta</button>
+                        <button class="tab-button" data-tab="tab-cualitativo">Análisis Cualitativo</button>
+                        <button class="tab-button" data-tab="tab-datos">Datos Crudos</button>
+                    </nav>
+                </div>
+                
+                <div id="tabs-content">
+                    <div id="tab-principal" class="tab-content active">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                            <div class="widget text-center"><h3 class="text-base font-semibold text-gray-500">Total de Respuestas</h3><p id="kpi-total-respuestas" class="kpi-value font-bold text-red-600 mt-2">0</p></div>
+                            <div class="widget text-center"><h3 class="text-base font-semibold text-gray-500">Madurez General</h3><p id="kpi-madurez-promedio" class="kpi-value font-bold text-red-600 mt-2">0.0/5</p></div>
+                            <div class="widget text-center"><h3 class="text-base font-semibold text-gray-500">Nivel de Concienciación</h3><p id="kpi-awareness-level" class="kpi-value font-bold text-blue-600 mt-2">0%</p></div>
+                            <div class="widget text-center"><h3 class="text-base font-semibold text-gray-500">Eficacia de Controles</h3><p id="kpi-control-effectiveness" class="kpi-value font-bold text-green-600 mt-2">0%</p></div>
+                            <div class="widget text-center"><h3 class="text-base font-semibold text-gray-500">Dominio más Fuerte</h3><p id="kpi-dominio-fuerte" class="text-xl font-bold text-gray-800 mt-3 break-words">N/A</p></div>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                            <div class="widget lg:col-span-3"><h3 class="text-xl font-semibold mb-4 text-gray-700">Nivel de Madurez por Dominio (ISO 27005)</h3><canvas id="maturity-radar-chart"></canvas></div>
+                            <div class="widget lg:col-span-2"><h3 class="text-xl font-semibold mb-4 text-gray-700">Perfil Demográfico</h3><canvas id="gender-pie-chart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div id="tab-estrategico" class="tab-content">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="widget">
+                                <h3 class="text-xl font-semibold mb-4 text-gray-700">Matriz de Riesgo</h3>
+                                <p class="text-sm text-gray-500 mb-4">Posicionamiento del riesgo organizacional basado en la fortaleza de los controles (Probabilidad) y la criticidad de los activos (Impacto).</p>
+                                <div id="heatmap-container" class="flex justify-center items-center mt-6"></div>
+                            </div>
+                             <div class="widget">
+                                <h3 class="text-xl font-semibold mb-4 text-gray-700">Plan de Acción Sugerido</h3>
+                                <p class="text-sm text-gray-500 mb-4">Dominios con el puntaje más bajo y recomendaciones estratégicas para enfocar los esfuerzos de mejora.</p>
+                                <div id="recommendations-container" class="space-y-4"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-preguntas" class="tab-content">
+                        <div class="widget">
+                            <h3 class="text-xl font-semibold mb-4 text-gray-700">Análisis Detallado por Pregunta</h3>
+                            <select id="question-selector" class="w-full md:w-1/2 p-2 border border-gray-300 rounded-lg mb-4"></select>
+                            <div class="h-96"><canvas id="question-detail-chart"></canvas></div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-cualitativo" class="tab-content">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="widget">
+                                <h3 class="text-xl font-semibold mb-4 text-gray-700">Nube de Palabras Clave</h3>
+                                <p class="text-sm text-gray-500 mb-4">Temas más frecuentes mencionados en los comentarios abiertos.</p>
+                                <div class="w-full h-96 flex items-center justify-center">
+                                    <canvas id="word-cloud-canvas" width="400" height="400"></canvas>
+                                </div>
+                            </div>
+                            <div class="widget">
+                                <h3 class="text-xl font-semibold mb-4 text-gray-700">Comentarios y Oportunidades</h3>
+                                <input type="text" id="comment-search" class="w-full p-2 border border-gray-300 rounded-lg mb-4" placeholder="Buscar en comentarios...">
+                                <div class="max-h-96 overflow-y-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50 sticky top-0"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comentario Adicional (q46)</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oportunidad de Mejora (q47)</th></tr></thead>
+                                        <tbody id="comments-table-body" class="bg-white divide-y divide-gray-200"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-datos" class="tab-content">
+                        <div class="widget">
+                            <h3 class="text-xl font-semibold mb-4 text-gray-700">Datos Crudos de Google Sheet</h3>
+                            <div class="max-h-[600px] overflow-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead id="raw-data-head" class="bg-gray-50 sticky top-0"></thead>
+                                    <tbody id="raw-data-body" class="bg-white divide-y divide-gray-200"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+    const ADMIN_PASSWORD = 'maestria2025';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby5jkSpifIgE40-RxsnIjQsDue0MluN6HcB8rSFwRoEp_xQBWHSf8bPjBE-pqF44cD82A/exec';
+
+    document.getElementById('password-submit').addEventListener('click', () => {
+        const input = document.getElementById('password-input');
+        if (input.value === ADMIN_PASSWORD) {
+            document.getElementById('password-overlay').style.display = 'none';
+            document.getElementById('dashboard-content').classList.remove('hidden');
+            loadData();
+        } else {
+            document.getElementById('password-error').classList.remove('hidden');
+            input.value = '';
+        }
+    });
+
+    const loadingContainer = document.getElementById('loading-container');
+    const loadingText = document.getElementById('loading-text');
+    const analyticsSection = document.getElementById('analytics-section');
+    const exportPdfBtn = document.getElementById('export-pdf-btn');
+    const refreshBtn = document.getElementById('refresh-data-btn');
+    
+    let allData = [];
+    let charts = {};
+    
+    refreshBtn.addEventListener('click', loadData);
+
+    async function loadData() {
+        if (SCRIPT_URL.includes('PEGA_AQUI')) {
+            loadingText.innerHTML = `<span class="text-red-600 font-semibold">Error de Configuración:<br>Edita este archivo HTML y actualiza la variable SCRIPT_URL.</span>`;
+            return;
+        }
+        analyticsSection.classList.add('hidden');
+        loadingContainer.classList.remove('hidden');
+        loadingText.textContent = 'Actualizando datos desde Google Sheets...';
+
+        try {
+            const response = await fetch(SCRIPT_URL);
+            if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
+            const data = await response.json();
+            if (data.error) throw new Error(`Error en el script: ${data.error}`);
+            
+            allData = data;
+            loadingContainer.classList.add('hidden');
+            analyticsSection.classList.remove('hidden');
+            exportPdfBtn.disabled = false;
+            
+            initializeDashboard();
+
+        } catch (error) {
+            console.error("Error al cargar los datos:", error);
+            loadingText.innerHTML = `<span class="text-red-600 font-semibold">Error al Cargar Datos:<br>Verifica la URL del script, los permisos en Google Sheets y tu conexión.<br><small>${error.message}</small></span>`;
+        }
+    }
+
+    const domainMapping={"Conocimiento General de Políticas":{start:4,end:5},"Contexto organizacional y activos":{start:6,end:11},"Identificación de amenazas y vulnerabilidades":{start:12,end:17},"Evaluación del riesgo":{start:18,end:23},"Tratamiento del riesgo":{start:24,end:29},"Comunicación y concienciación":{start:30,end:35},"Monitoreo y mejora continua":{start:36,end:41},"Cumplimiento legal y normativo":{start:42,end:45}};
+    const questionLabels={q4:"4. La entidad cuenta con alguna política de riesgo.",q5:"5. ¿Usted conoce las políticas de riesgo?",q6:"6. La organización tiene identificados sus activos de información más críticos.",q7:"7. Existe un inventario actualizado de activos de TI.",q8:"8. Se consideran activos físicos como intangibles.",q9:"9. Los activos de información cuentan con propietarios asignados.",q10:"10. Se definen criterios de clasificación de la información.",q11:"11. Se revisa periódicamente la criticidad de los activos.",q12:"12. La organización identifica sistemáticamente las amenazas.",q13:"13. Se mantienen registros de vulnerabilidades técnicas.",q14:"14. Empleados son conscientes de amenazas de mal uso.",q15:"15. Se evalúan riesgos derivados de proveedores.",q16:"16. Se considera el riesgo de insiders.",q17:"17. La organización realiza simulación de incidentes.",q18:"18. Existe una metodología formal para evaluar riesgos.",q19:"19. Se valoran riesgos por probabilidad e impacto.",q20:"20. Se priorizan los riesgos según su criticidad.",q21:"21. Los riesgos se documentan y están disponibles.",q22:"22. Se revisa anualmente la matriz de riesgos.",q23:"23. Se contemplan riesgos emergentes.",q24:"24. Se definen claramente estrategias de tratamiento.",q25:"25. Se asignan responsables para seguimiento de riesgos.",q26:"26. Los planes de tratamiento son revisados y ajustados.",q27:"27. Se destina presupuesto específico para tratamiento.",q28:"28. Responsables reportan periódicamente a la dirección.",q29:"29. La empresa implementa ciberseguros.",q30:"30. Se comunican los riesgos a todos los niveles.",q31:"31. Existen capacitaciones periódicas en ciberseguridad.",q32:"32. La alta dirección participa en decisiones sobre riesgos.",q33:"33. Empleados conocen a quién reportar un incidente.",q34:"34. Se promueve una cultura de responsabilidad compartida.",q35:"35. Mensajes de concienciación son frecuentes y claros.",q36:"36. Los riesgos se monitorean de manera continua.",q37:"37. Se documentan y analizan los incidentes ocurridos.",q38:"38. Existen auditorías o revisiones periódicas.",q39:"39. Se aplican KPIs/KRIs para evaluar la gestión.",q40:"40. Resultados de auditorías se comparten con dirección.",q41:"41. La organización aprende de incidentes de la industria.",q42:"42. Se identifican riesgos de leyes de protección de datos.",q43:"43. Se evalúa periódicamente la eficacia de controles.",q44:"44. Riesgos de proveedores son gestionados.",q45:"45. Se consideran riesgos regulatorios y legales."};
+    
+    // --- Lógica del Dashboard ---
+    function initializeDashboard() {
+        populateFilters();
+        setupEventListeners();
+        renderAllTabs();
+    }
+
+    function setupEventListeners() {
+        document.querySelectorAll('#analytics-section select').forEach(filter => filter.addEventListener('change', renderAllTabs));
+        document.getElementById('comment-search').addEventListener('input', renderAllTabs);
+        document.getElementById('tabs-nav').addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab-button')) {
+                const targetTab = e.target.dataset.tab;
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(targetTab).classList.add('active');
+            }
+        });
+    }
+    
+    function populateFilters() {
+        const gerencias = ['Todas', ...new Set(allData.map(item => item.gerencia).filter(Boolean).sort())];
+        const antiguedadRanges = ['Todos', '0-1 años', '2-5 años', '6-10 años', '11+ años'];
+        const sexos = ['Todos', ...new Set(allData.map(item => item.sexo).filter(Boolean).sort())];
+        
+        document.getElementById('filter-gerencia').innerHTML = gerencias.map(g => `<option value="${g}">${g}</option>`).join('');
+        document.getElementById('filter-antiguedad').innerHTML = antiguedadRanges.map(a => `<option value="${a}">${a}</option>`).join('');
+        document.getElementById('filter-sexo').innerHTML = sexos.map(s => `<option value="${s}">${s}</option>`).join('');
+
+        const questionSelector = document.getElementById('question-selector');
+        questionSelector.innerHTML = Object.entries(questionLabels).map(([key, value]) => `<option value="${key}">${value}</option>`).join('');
+    }
+
+    function getFilteredData() {
+        const selectedGerencia = document.getElementById('filter-gerencia').value;
+        const selectedAntiguedad = document.getElementById('filter-antiguedad').value;
+        const selectedSexo = document.getElementById('filter-sexo').value;
+        
+        return allData.filter(item => {
+            const gerenciaMatch = selectedGerencia === 'Todas' || item.gerencia === selectedGerencia;
+            const sexoMatch = selectedSexo === 'Todos' || item.sexo === selectedSexo;
+            let antiguedadMatch = true;
+            const antiguedad = parseInt(item.antiguedad, 10);
+            if (!isNaN(antiguedad) && selectedAntiguedad !== 'Todos') {
+                if (selectedAntiguedad === '0-1 años') antiguedadMatch = antiguedad <= 1;
+                else if (selectedAntiguedad === '2-5 años') antiguedadMatch = antiguedad >= 2 && antiguedad <= 5;
+                else if (selectedAntiguedad === '6-10 años') antiguedadMatch = antiguedad >= 6 && antiguedad <= 10;
+                else if (selectedAntiguedad === '11+ años') antiguedadMatch = antiguedad >= 11;
+            }
+            return gerenciaMatch && sexoMatch && antiguedadMatch;
+        });
+    }
+
+    function renderAllTabs() {
+        const data = getFilteredData();
+        const domainScores = calculateDomainScores(data);
+
+        renderKPIs(data, domainScores);
+        renderRadarChart(domainScores);
+        renderPieChart(data);
+        renderQuestionDetailChart(data);
+        renderCommentsTable(data);
+        renderRawDataTable(data);
+        renderHeatmap(data);
+        renderRecommendations(domainScores);
+        renderWordCloud(data);
+    }
+    
+    function calculateDomainScores(data) {
+        const domainScores = {};
+        Object.keys(domainMapping).forEach(domain => {
+            const { start, end } = domainMapping[domain];
+            const scores = [];
+            for (let i = start; i <= end; i++) {
+                data.forEach(row => {
+                    const score = parseInt(row[`q${i}`], 10);
+                    if (!isNaN(score)) scores.push(score);
+                });
+            }
+            domainScores[domain] = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+        });
+        return domainScores;
+    }
+
+    function getAverageScore(data, questionKeys) {
+        const scores = [];
+        questionKeys.forEach(key => {
+            data.forEach(row => {
+                const score = parseInt(row[key], 10);
+                if (!isNaN(score)) scores.push(score);
+            });
+        });
+        return scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    }
+
+    function renderKPIs(data, domainScores) {
+        document.getElementById('kpi-total-respuestas').textContent = data.length;
+        
+        const allScores = Object.values(domainScores).filter(s => s > 0);
+        const avgMaturity = allScores.length > 0 ? (allScores.reduce((a, b) => a + b, 0) / allScores.length).toFixed(1) : '0.0';
+        document.getElementById('kpi-madurez-promedio').textContent = `${avgMaturity}/5`;
+
+        const sortedDomains = Object.entries(domainScores).sort((a, b) => b[1] - a[1]);
+        document.getElementById('kpi-dominio-fuerte').textContent = sortedDomains.length > 0 && sortedDomains[0][1] > 0 ? sortedDomains[0][0] : 'N/A';
+        
+        const awarenessScore = getAverageScore(data, ['q30', 'q31', 'q32', 'q33', 'q34', 'q35']);
+        document.getElementById('kpi-awareness-level').textContent = `${(awarenessScore / 5 * 100).toFixed(0)}%`;
+
+        const controlScore = getAverageScore(data, ['q36', 'q37', 'q38', 'q39', 'q40', 'q41', 'q43']);
+        document.getElementById('kpi-control-effectiveness').textContent = `${(controlScore / 5 * 100).toFixed(0)}%`;
+    }
+
+    function renderRadarChart(domainScores) {
+        const ctx = document.getElementById('maturity-radar-chart').getContext('2d');
+        if (charts.radar) charts.radar.destroy();
+        charts.radar = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: Object.keys(domainScores),
+                datasets: [{
+                    label: 'Nivel de Madurez', data: Object.values(domainScores),
+                    backgroundColor: 'rgba(220, 38, 38, 0.2)', borderColor: 'rgba(220, 38, 38, 1)',
+                    borderWidth: 2, pointBackgroundColor: 'rgba(220, 38, 38, 1)'
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { r: { angleLines: { color: 'rgba(0, 0, 0, 0.1)' }, grid: { color: 'rgba(0, 0, 0, 0.1)' }, pointLabels: { font: { size: 10 } }, suggestedMin: 0, suggestedMax: 5, ticks: { backdropColor: 'white', stepSize: 1 } } }
+            }
+        });
+    }
+
+    function renderPieChart(data) {
+        const ctx = document.getElementById('gender-pie-chart').getContext('2d');
+        const genderCounts = data.reduce((acc, item) => {
+            const gender = item.sexo || "No especificado";
+            acc[gender] = (acc[gender] || 0) + 1;
+            return acc;
+        }, {});
+        if (charts.pie) charts.pie.destroy();
+        charts.pie = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(genderCounts),
+                datasets: [{ data: Object.values(genderCounts), backgroundColor: ['#ef4444', '#3b82f6', '#9ca3af', '#f97316', '#10b981'] }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    function renderQuestionDetailChart(data) {
+        const selectedQuestion = document.getElementById('question-selector').value;
+        const ctx = document.getElementById('question-detail-chart').getContext('2d');
+        const answerCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        data.forEach(row => {
+            const answer = parseInt(row[selectedQuestion], 10);
+            if (answer in answerCounts) answerCounts[answer]++;
+        });
+        if (charts.detail) charts.detail.destroy();
+        charts.detail = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['1: Totalmente en desacuerdo', '2: En desacuerdo', '3: Neutral', '4: De acuerdo', '5: Totalmente de acuerdo'],
+                datasets: [{ label: 'Número de Respuestas', data: Object.values(answerCounts), backgroundColor: '#ef4444' }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+    }
+    
+    function renderCommentsTable(data) {
+        const tableBody = document.getElementById('comments-table-body');
+        const searchTerm = document.getElementById('comment-search').value.toLowerCase();
+        tableBody.innerHTML = '';
+        let commentsFound = 0;
+        data.forEach(row => {
+            const comentario = row.q46_comentario || '';
+            const mejora = row.q47_mejora || '';
+            if ((comentario || mejora) && (comentario.toLowerCase().includes(searchTerm) || mejora.toLowerCase().includes(searchTerm))) {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50';
+                tr.innerHTML = `<td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${comentario}</td><td class="px-6 py-4 whitespace-normal text-sm text-gray-700">${mejora}</td>`;
+                tableBody.appendChild(tr);
+                commentsFound++;
+            }
+        });
+        if(commentsFound === 0){
+             tableBody.innerHTML = '<tr><td colspan="2" class="text-center p-4 text-gray-500">No hay comentarios que coincidan.</td></tr>';
+        }
+    }
+
+    function renderRawDataTable(data) {
+        const answerMap = {
+            '1': '1-Totalmente en desacuerdo', '2': '2-En desacuerdo',
+            '3': '3-Neutral', '4': '4-De acuerdo', '5': '5-Totalmente de acuerdo'
+        };
+        const tableHead = document.getElementById('raw-data-head');
+        const tableBody = document.getElementById('raw-data-body');
+        tableHead.innerHTML = ''; tableBody.innerHTML = '';
+        if (data.length === 0) {
+            tableBody.innerHTML = '<tr><td class="p-4 text-center text-gray-500">No hay datos para los filtros actuales.</td></tr>';
+            return;
+        }
+        const headers = Object.keys(data[0]);
+        const headerRow = document.createElement('tr');
+        headers.forEach(header => {
+            const th = document.createElement('th');
+            th.className = "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider";
+            th.textContent = header;
+            headerRow.appendChild(th);
+        });
+        tableHead.appendChild(headerRow);
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-gray-50";
+            headers.forEach(header => {
+                const td = document.createElement('td');
+                td.className = "px-4 py-4 whitespace-nowrap text-sm text-gray-700";
+                let cellValue = row[header];
+                if (header.match(/^q\d+$/) && header !== 'q46_comentario' && header !== 'q47_mejora' && answerMap[cellValue]) {
+                    cellValue = answerMap[cellValue];
+                }
+                td.textContent = cellValue;
+                tr.appendChild(td);
+            });
+            tableBody.appendChild(tr);
+        });
+    }
+    
+    function renderHeatmap(data) {
+        const likelihoodQs = ['q4','q5','q7','q9','q10','q12','q13','q18','q25','q26','q27','q31','q33','q35','q36','q37','q38','q39','q43','q44'];
+        const impactQs = ['q6','q11','q15','q16','q19','q20','q28','q32','q42','q45'];
+        
+        const avgControlScore = getAverageScore(data, likelihoodQs);
+        const likelihood = 5 - avgControlScore;
+        const impact = getAverageScore(data, impactQs);
+        
+        const container = document.getElementById('heatmap-container');
+        const levels = ['Bajo', 'Medio', 'Alto', 'Crítico'];
+        const colors = [['#dcfce7', '#bbf7d0', '#fef08a', '#fca5a5'], ['#bbf7d0', '#86efac', '#facc15', '#ef4444'], ['#fef08a', '#facc15', '#eab308', '#dc2626'], ['#fca5a5', '#ef4444', '#dc2626', '#b91c1c']];
+        
+        let tableHtml = '<table class="heatmap-table"><tr><td></td>';
+        levels.forEach(level => tableHtml += `<th class="font-normal text-sm p-1">${level}</th>`);
+        tableHtml += '</tr>';
+
+        for (let i = 3; i >= 0; i--) {
+            tableHtml += `<tr><th class="font-normal text-sm text-right pr-2">${levels[i]}</th>`;
+            for (let j = 0; j < 4; j++) {
+                const isRiskCell = Math.floor(impact - 1) === i && Math.floor(likelihood - 1) === j;
+                const marker = isRiskCell ? `<span title="Posición de Riesgo Actual: (Prob: ${likelihood.toFixed(1)}, Imp: ${impact.toFixed(1)})">●</span>` : '';
+                tableHtml += `<td class="heatmap-cell" style="background-color: ${colors[i][j]};">${marker}</td>`;
+            }
+            tableHtml += '</tr>';
+        }
+        tableHtml += '</table>';
+        
+        container.innerHTML = `
+            <div class="flex items-center">
+                <div class="vertical-text font-semibold text-sm mr-2">IMPACTO</div>
+                <div>
+                    ${tableHtml}
+                    <div class="text-center mt-2 text-sm font-semibold">PROBABILIDAD</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderRecommendations(domainScores) {
+        const sortedDomains = Object.entries(domainScores).sort((a, b) => a[1] - b[1]);
+        const container = document.getElementById('recommendations-container');
+        container.innerHTML = '';
+        
+        const recommendationsMap = {
+            "Conocimiento General de Políticas": "Reforzar la comunicación de las políticas existentes y crear campañas de concienciación sobre su importancia y contenido.",
+            "Contexto organizacional y activos": "Iniciar un proyecto de clasificación de la información y asignación formal de propietarios a todos los activos críticos.",
+            "Identificación de amenazas y vulnerabilidades": "Implementar un programa de gestión de vulnerabilidades, incluyendo escaneos periódicos y ejercicios de ethical hacking.",
+            "Evaluación del riesgo": "Formalizar y documentar una metodología de evaluación de riesgos estándar para toda la organización, basada en probabilidad e impacto.",
+            "Tratamiento del riesgo": "Establecer un comité de riesgos que revise y apruebe los planes de tratamiento, asegurando la asignación de presupuesto y responsables.",
+            "Comunicación y concienciación": "Lanzar un programa de formación continua en seguridad, con simulaciones de phishing y módulos adaptados a cada rol.",
+            "Monitoreo y mejora continua": "Desarrollar y monitorizar Indicadores Clave de Riesgo (KRIs) y realizar auditorías internas de seguridad de forma periódica.",
+            "Cumplimiento legal y normativo": "Realizar un análisis de brechas (gap analysis) contra las regulaciones aplicables (ej. GDPR, ley local de datos) y definir planes de remediación."
+        };
+        let recommendationsFound = 0;
+        for (let i = 0; i < 3; i++) {
+            if (sortedDomains[i] && sortedDomains[i][1] < 3.5) { // Show recommendation if score is below a threshold
+                const [domain, score] = sortedDomains[i];
+                const recommendation = recommendationsMap[domain] || "Revisar y fortalecer los controles y procesos asociados a este dominio.";
+                const element = document.createElement('div');
+                element.className = 'border-l-4 p-4 rounded-r-lg';
+                const scoreColor = score < 2.5 ? 'border-red-500 bg-red-50' : 'border-yellow-500 bg-yellow-50';
+                element.innerHTML = `<div class="${scoreColor}">
+                    <h4 class="font-bold">${i+1}. ${domain}</h4>
+                    <p class="text-sm text-gray-700"><strong>Puntaje:</strong> ${score.toFixed(1)}/5</p>
+                    <p class="mt-2 text-sm text-gray-800">${recommendation}</p>
+                </div>`;
+                container.appendChild(element);
+                recommendationsFound++;
+            }
+        }
+        if(recommendationsFound === 0) {
+            container.innerHTML = '<div class="text-center p-4 bg-green-50 text-green-700 rounded-lg">¡Excelente! No se han identificado dominios con debilidades críticas que requieran acción inmediata.</div>';
+        }
+    }
+
+    function renderWordCloud(data) {
+        const text = data.map(row => `${row.q46_comentario || ''} ${row.q47_mejora || ''}`).join(' ');
+        const stopWords = new Set(['de','la','que','el','en','y','a','los','del','las','un','por','con','no','una','su','para','es','al','lo','como','más','o','pero','sus','le','ha','me','si','sin','sobre','este','ya','entre','cuando','muy','también','hasta','desde','mi','porque','qué','solo','han','yo','está','uno','se','les','nos','son','tiene','hemos','sea','ser']);
+        
+        const wordCounts = {};
+        text.toLowerCase().split(/\s+/).forEach(word => {
+            word = word.replace(/[.,¡!¿?()]/g, '');
+            if (word && !stopWords.has(word) && isNaN(word)) {
+                wordCounts[word] = (wordCounts[word] || 0) + 1;
+            }
+        });
+        
+        const wordList = Object.entries(wordCounts).sort((a,b) => b[1] - a[1]).slice(0, 50).map(([text, weight]) => [text, weight * 2]);
+
+        const canvas = document.getElementById('word-cloud-canvas');
+        if(wordList.length > 5) { // Require a minimum number of words
+            WordCloud(canvas, { list: wordList, backgroundColor: 'transparent', weightFactor: 2, shrinkToFit: true, color: 'random-dark' });
+        } else {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "16px Roboto";
+            ctx.fillStyle = "#6b7280";
+            ctx.textAlign = "center";
+            ctx.fillText("No hay suficientes comentarios para generar la nube.", canvas.width/2, canvas.height/2);
+        }
+    }
+
+    document.getElementById('export-pdf-btn').addEventListener('click', () => {
+        if (!allData.length) return;
+        const { jsPDF } = window.jspdf;
+        const activeTab = document.querySelector('.tab-content.active');
+        if (!activeTab) return;
+        const pdfTitle = `Reporte de Riesgos - ${document.querySelector('.tab-button.active').textContent.trim()}`;
+        
+        loadingText.textContent = 'Generando PDF, por favor espere...';
+        loadingContainer.classList.remove('hidden');
+        
+        html2canvas(activeTab, { scale: 2, windowWidth: activeTab.scrollWidth, windowHeight: activeTab.scrollHeight }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            let pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            let heightLeft = pdfHeight;
+            let position = 25; // top margin
+
+            pdf.text(pdfTitle, 10, 15);
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+            heightLeft -= pdf.internal.pageSize.getHeight();
+
+            while (heightLeft > 0) {
+              position = heightLeft - pdfHeight;
+              pdf.addPage();
+              pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+              heightLeft -= pdf.internal.pageSize.getHeight();
+            }
+            
+            pdf.save(`reporte_analisis_riesgos - ${new Date().toISOString().slice(0,10)}.pdf`);
+            loadingContainer.classList.add('hidden');
+        });
+    });
+
+</script>
+</body>
+</html>
+
