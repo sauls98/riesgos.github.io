@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta de Cultura en Seguridad de la Información | ISO 27005</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+        .progress-bar-fill { transition: width 0.3s ease-in-out; }
+        .radio-label:has(input:checked) { background-color: #e0f2fe; border-color: #38bdf8; }
+        /* Estilo para el loader */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ef4444;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <img src="https://logodownload.org/wp-content/uploads/2014/09/coca-cola-logo-1.png" alt="Logo Coca-Cola" class="mx-auto h-16 mb-4">
+            <h1 class="text-3xl font-bold text-gray-800">Encuesta de Cultura Organizacional en Seguridad de la Información</h1>
+        </header>
+
+        <main id="survey-container" class="bg-white p-6 sm:p-10 rounded-2xl shadow-lg">
+             <div id="progress-container" class="w-full bg-gray-200 rounded-full h-4 mb-8 shadow-inner">
+                 <div id="progress-bar" class="bg-red-600 h-4 rounded-full progress-bar-fill" style="width: 0%;"></div>
+             </div>
+            <form id="iso-survey-form">
+                <!-- La sección demográfica inicial -->
+                <div id="section-0" class="form-section active">
+                    <h2 class="text-2xl font-semibold mb-2 text-red-700">Bienvenido/a</h2>
+                    <p class="mb-6 text-gray-600">Sus respuestas son anónimas y serán enviadas de forma segura al administrador. ¡Gracias por su participación!</p>
+                     <h3 class="text-xl font-semibold mb-4 border-b pb-2">Información Demográfica</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="sexo" class="block text-sm font-medium text-gray-700 mb-2">1. Sexo</label>
+                            <select id="sexo" name="sexo" required class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500">
+                                <option value="" disabled selected>Seleccione una opción</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="gerencia" class="block text-sm font-medium text-gray-700 mb-2">2. Dirección o gerencia a la que se reporta</label>
+                            <input type="text" id="gerencia" name="gerencia" required class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="Ej: Tecnología de la Información">
+                        </div>
+                        <div>
+                            <label for="antiguedad" class="block text-sm font-medium text-gray-700 mb-2">3. Años de antigüedad en la empresa</label>
+                            <input type="number" id="antiguedad" name="antiguedad" required min="0" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="Ej: 5">
+                        </div>
+                    </div>
+                </div>
+                <!-- Las preguntas se generarán aquí dinámicamente -->
+            </form>
+             <div class="mt-10 flex justify-between items-center">
+                 <button type="button" id="prev-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg shadow transition-colors duration-300" style="display: none;">Anterior</button>
+                 <span id="step-counter" class="text-sm text-gray-500 font-medium"></span>
+                 <button type="button" id="next-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-colors duration-300">Siguiente</button>
+                 <button type="button" id="submit-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-8 rounded-lg shadow transition-colors duration-300 hidden">Enviar Respuestas</button>
+            </div>
+        </main>
+        
+        <div id="thank-you-message" class="hidden text-center bg-white p-10 rounded-2xl shadow-lg">
+             <div id="submission-loader" class="loader hidden"></div>
+             <div id="submission-content">
+                <svg class="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <h2 class="text-3xl font-bold text-gray-800 mt-4">¡Gracias!</h2>
+                <p class="text-gray-600 mt-2 mb-4">Sus respuestas han sido enviadas exitosamente.</p>
+             </div>
+        </div>
+    </div>
+
+<script>
+    // URL de la aplicación web de Google Apps Script.
+    // IMPORTANTE: Debes reemplazar esta URL por la que generes al desplegar tu script.
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNErJyZIlZB6iuUrz7Hh7A1NmF30ECbDyeZrmGo4ERzVbywFkOLL6ldUM0O6Qe5vOT/exec';
+
+    const surveyContainer = document.getElementById('iso-survey-form');
+    const sections = document.getElementsByClassName('form-section');
+    const nextBtn = document.getElementById('next-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const stepCounter = document.getElementById('step-counter');
+    const thankYouMessage = document.getElementById('thank-you-message');
+    const surveyMainContainer = document.getElementById('survey-container');
+    
+    // JSON con todas las preguntas, sin cambios.
+    const questionsData = [{"domain":"Conocimiento General de Políticas","questions":["4. La entidad cuenta con alguna política de riesgo.","5. ¿Usted conoce las políticas de riesgo?"]},{"domain":"Contexto organizacional y activos","questions":["6. La organización tiene identificados sus activos de información más críticos (bases de datos, etc.).","7. Existe un inventario actualizado de activos de TI y sistemas de información.","8. Se consideran tanto activos físicos como intangibles en la gestión de riesgos.","9. Los activos de información cuentan con propietarios formalmente asignados.","10. Se definen criterios de clasificación de la información (confidencial, interna, pública).","11. Se revisa periódicamente la criticidad de los activos frente a los objetivos del negocio."]},{"domain":"Identificación de amenazas y vulnerabilidades","questions":["12. La organización identifica de manera sistemática las amenazas que pueden afectar la información.","13. Se mantienen registros de vulnerabilidades técnicas detectadas en los sistemas.","14. Los empleados son conscientes de las amenazas relacionadas con el mal uso de la información.","15. Se evalúan riesgos derivados de proveedores y terceros.","16. Se considera el riesgo de insiders (empleados malintencionados).","17. La organización realiza ejercicios de simulación de incidentes para identificar debilidades."]},{"domain":"Evaluación del riesgo","questions":["18. Existe una metodología formal para evaluar riesgos de seguridad de la información.","19. Se valoran los riesgos considerando tanto la probabilidad como el impacto en el negocio.","20. Se priorizan los riesgos de acuerdo con su criticidad para la continuidad del negocio.","21. Los riesgos se documentan y se encuentran disponibles para consulta.","22. La organización revisa anualmente la matriz de riesgos para mantenerla actualizada.","23. Se contemplan riesgos emergentes (ej. inteligencia artificial, IoT, nube)."]},{"domain":"Tratamiento del riesgo","questions":["24. La organización define claramente las estrategias de tratamiento de riesgos (mitigar, transferir, etc.).","25. Se asignan responsables específicos para el seguimiento de cada riesgo.","26. Los planes de tratamiento son revisados y se ajustan según cambios en el entorno.","27. Se destina presupuesto específico para el tratamiento de riesgos de seguridad.","28. Los responsables de riesgos reportan periódicamente el estado de los planes a la dirección.","29. La empresa implementa seguros o coberturas para riesgos de ciberseguridad."]},{"domain":"Comunicación y concienciación","questions":["30. Se comunican los riesgos de seguridad de la información a todos los niveles de la organización.","31. Existen capacitaciones periódicas en gestión de riesgos y ciberseguridad.","32. La alta dirección participa activamente en la toma de decisiones sobre riesgos.","33. Los empleados conocen a quién reportar un incidente de seguridad.","34. Se promueve una cultura de “seguridad como responsabilidad compartida”.","35. Los mensajes de concienciación (ej. phishing) son frecuentes y claros."]},{"domain":"Monitoreo y mejora continua","questions":["36. Los riesgos se monitorean de manera continua con apoyo de herramientas tecnológicas.","37. Se documentan y analizan los incidentes de seguridad ocurridos.","38. Existen auditorías o revisiones periódicas para verificar la eficacia de los controles.","39. Se aplican indicadores de desempeño (KPI/KRI) para evaluar la gestión de riesgos.","40. Los resultados de auditorías internas son compartidos con la alta dirección.","41. La organización aprende de incidentes ocurridos en la industria para fortalecer sus controles."]},{"domain":"Cumplimiento legal y normativo","questions":["42. Se identifican y analizan riesgos relacionados con leyes de protección de datos.","43. La organización evalúa periódicamente la eficacia de sus controles.","44. Los riesgos derivados de proveedores y terceros son gestionados y monitoreados.","45. Se consideran riesgos regulatorios y legales en el proceso de evaluación."]},{"domain":"Comentarios Finales","questions":[{"type":"textarea","name":"q46_comentario","label":"46. ¿Tiene algún comentario adicional sobre la gestión de riesgos en la organización?"},{"type":"textarea","name":"q47_mejora","label":"47. ¿Qué oportunidades de mejora considera más importantes?"}]}];
+    const options = ['Totalmente en desacuerdo', 'En desacuerdo', 'Ni de acuerdo ni en desacuerdo', 'De acuerdo', 'Totalmente de acuerdo'];
+
+    function generateQuestions() {
+        questionsData.forEach((sectionData, index) => {
+            const sectionEl = document.createElement('div');
+            sectionEl.id = `section-${index + 1}`;
+            sectionEl.className = 'form-section';
+            let content = `<h3 class="text-xl font-semibold mb-6 border-b pb-2">${sectionData.domain}</h3><div class="space-y-8">`;
+            sectionData.questions.forEach((q) => {
+                if (typeof q === 'string') {
+                    const qNum = parseInt(q.split('.')[0]);
+                    const qName = `q${qNum}`;
+                    content += `<div><p class="block text-sm font-medium text-gray-900 mb-3">${q}</p><div class="flex flex-wrap gap-2">`;
+                    options.forEach((opt, optIndex) => {
+                        content += `<label class="radio-label flex-1 text-center cursor-pointer p-3 border-2 border-gray-200 rounded-lg shadow-sm hover:border-sky-400 min-w-[150px]"><input type="radio" name="${qName}" value="${optIndex + 1}" class="sr-only" required><span class="text-sm">${opt}</span></label>`
+                    });
+                    content += `</div></div>`
+                } else {
+                    content += `<div><label for="${q.name}" class="block text-sm font-medium text-gray-900 mb-2">${q.label}</label><textarea id="${q.name}" name="${q.name}" rows="4" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500"></textarea></div>`
+                }
+            });
+            content += `</div>`;
+            sectionEl.innerHTML = content;
+            surveyContainer.appendChild(sectionEl);
+        });
+    }
+
+    generateQuestions();
+
+    let currentSection = 0;
+    const totalSections = sections.length;
+
+    function updateControls() {
+        prevBtn.style.display = currentSection === 0 ? 'none' : 'block';
+        nextBtn.style.display = currentSection === totalSections - 1 ? 'none' : 'block';
+        submitBtn.classList.toggle('hidden', currentSection !== totalSections - 1);
+
+        const progress = currentSection / (totalSections - 1) * 100;
+        progressBar.style.width = `${progress}%`;
+        stepCounter.textContent = `Paso ${currentSection + 1} de ${totalSections}`;
+
+        Array.from(sections).forEach((s, i) => s.classList.toggle('active', i === currentSection));
+        window.scrollTo(0, 0);
+    }
+
+    function validateSection() {
+        const activeSection = sections[currentSection];
+        for (const input of activeSection.querySelectorAll('[required]')) {
+            if (input.type === 'radio') {
+                if (!activeSection.querySelector(`input[name="${input.name}"]:checked`)) {
+                    alert('Por favor, responda todas las preguntas para continuar.');
+                    return false;
+                }
+            } else if (!input.value.trim()) {
+                const label = document.querySelector(`label[for="${input.id}"]`);
+                alert(`Por favor, complete el campo "${label ? label.textContent : 'requerido'}" para continuar.`);
+                input.focus();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    nextBtn.addEventListener('click', () => {
+        if (validateSection()) {
+            currentSection++;
+            updateControls();
+        }
+    });
+
+    prevBtn.addEventListener('click', () => {
+        currentSection--;
+        updateControls();
+    });
+
+    submitBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!validateSection()) return;
+        
+        if (GOOGLE_APPS_SCRIPT_URL === 'PEGA_AQUI_LA_URL_DE_TU_WEB_APP') {
+            alert('Error de configuración: La URL del script de Google no ha sido establecida en el archivo HTML.');
+            return;
+        }
+
+        const form = document.getElementById('iso-survey-form');
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+
+        // Ocultar formulario y mostrar mensaje de envío
+        surveyMainContainer.style.display = 'none';
+        thankYouMessage.classList.remove('hidden');
+        document.getElementById('submission-loader').classList.remove('hidden');
+        document.getElementById('submission-content').classList.add('hidden');
+
+
+        // Enviar datos a Google Apps Script
+        fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: {
+                // *** FIX ***
+                // Se cambia 'Content-Type' a 'text/plain' para evitar la solicitud de pre-vuelo (preflight)
+                // de CORS, que es la causa del 'NetworkError'. El script de Google puede seguir
+                // interpretando el cuerpo de la solicitud como un JSON sin problemas.
+                'Content-Type': 'text/plain',
+            },
+            body: JSON.stringify(data),
+            redirect: 'follow',
+        })
+        .then(res => {
+            // Con 'no-cors', la respuesta es opaca y no podemos confirmar el éxito desde el servidor.
+            // Sin embargo, si la promesa se resuelve, significa que el navegador envió la solicitud.
+            console.log("Solicitud de envío completada.");
+            document.getElementById('submission-loader').classList.add('hidden');
+            document.getElementById('submission-content').classList.remove('hidden');
+        })
+        .catch(err => {
+            console.error('Error de red al intentar enviar los datos:', err);
+            thankYouMessage.querySelector('h2').textContent = 'Error en el envío';
+            thankYouMessage.querySelector('p').textContent = 'No se pudieron enviar sus respuestas. Esto puede deberse a un problema de red, un bloqueador de anuncios o una configuración incorrecta de la URL del script. Por favor, verifique y reintente.';
+            thankYouMessage.querySelector('svg').classList.add('text-red-500');
+            thankYouMessage.querySelector('svg').classList.remove('text-green-500');
+            
+            document.getElementById('submission-loader').classList.add('hidden');
+            document.getElementById('submission-content').classList.remove('hidden');
+        });
+    });
+
+    updateControls();
+</script>
+</body>
+</html>
+
