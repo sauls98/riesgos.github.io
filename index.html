@@ -6,7 +6,7 @@
     <title>Dashboard Profesional de Análisis de Riesgos | ISO 27005</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/wordcloud@2.6.2/src/wordcloud2.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/timdream/wordcloud2.js/src/wordcloud2.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -86,8 +86,18 @@
                             <div class="widget text-center"><h3 class="text-base font-semibold text-gray-500">Dominio más Fuerte</h3><p id="kpi-dominio-fuerte" class="text-xl font-bold text-gray-800 mt-3 break-words">N/A</p></div>
                         </div>
                         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                            <div class="widget lg:col-span-3"><h3 class="text-xl font-semibold mb-4 text-gray-700">Nivel de Madurez por Dominio (ISO 27005)</h3><canvas id="maturity-radar-chart"></canvas></div>
-                            <div class="widget lg:col-span-2"><h3 class="text-xl font-semibold mb-4 text-gray-700">Perfil Demográfico</h3><canvas id="gender-pie-chart"></canvas></div>
+                            <div class="widget lg:col-span-3">
+                                <h3 class="text-xl font-semibold mb-4 text-gray-700">Nivel de Madurez por Dominio (ISO 27005)</h3>
+                                <div class="relative h-96">
+                                    <canvas id="maturity-radar-chart"></canvas>
+                                </div>
+                            </div>
+                            <div class="widget lg:col-span-2">
+                                <h3 class="text-xl font-semibold mb-4 text-gray-700">Perfil Demográfico</h3>
+                                <div class="relative h-96">
+                                    <canvas id="gender-pie-chart"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -520,8 +530,8 @@
         
         const wordCounts = {};
         text.toLowerCase().split(/\s+/).forEach(word => {
-            word = word.replace(/[.,¡!¿?()]/g, '');
-            if (word && !stopWords.has(word) && isNaN(word)) {
+            word = word.replace(/[.,¡!¿?()]/g, '').trim();
+            if (word && word.length > 2 && !stopWords.has(word) && isNaN(word)) {
                 wordCounts[word] = (wordCounts[word] || 0) + 1;
             }
         });
@@ -529,7 +539,13 @@
         const wordList = Object.entries(wordCounts).sort((a,b) => b[1] - a[1]).slice(0, 50).map(([text, weight]) => [text, weight * 2]);
 
         const canvas = document.getElementById('word-cloud-canvas');
-        if(wordList.length > 5) { // Require a minimum number of words
+        if (typeof WordCloud !== 'function') {
+            console.error("WordCloud library is not loaded correctly.");
+            canvas.getContext('2d').fillText("Error al cargar librería de Nube de Palabras.", 10, 50);
+            return;
+        }
+
+        if(wordList.length > 1) { // Require at least 2 unique words
             WordCloud(canvas, { list: wordList, backgroundColor: 'transparent', weightFactor: 2, shrinkToFit: true, color: 'random-dark' });
         } else {
             const ctx = canvas.getContext('2d');
@@ -550,6 +566,7 @@
         
         loadingText.textContent = 'Generando PDF, por favor espere...';
         loadingContainer.classList.remove('hidden');
+        analyticsSection.classList.add('hidden');
         
         html2canvas(activeTab, { scale: 2, windowWidth: activeTab.scrollWidth, windowHeight: activeTab.scrollHeight }).then(canvas => {
             const imgData = canvas.toDataURL('image/png', 1.0);
@@ -564,7 +581,7 @@
             heightLeft -= pdf.internal.pageSize.getHeight();
 
             while (heightLeft > 0) {
-              position = heightLeft - pdfHeight;
+              position = heightLeft - pdfHeight - 25; // Adjust position for subsequent pages
               pdf.addPage();
               pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
               heightLeft -= pdf.internal.pageSize.getHeight();
@@ -572,6 +589,7 @@
             
             pdf.save(`reporte_analisis_riesgos - ${new Date().toISOString().slice(0,10)}.pdf`);
             loadingContainer.classList.add('hidden');
+            analyticsSection.classList.remove('hidden');
         });
     });
 
