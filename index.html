@@ -60,7 +60,7 @@
                 <div class="widget mb-8">
                     <h2 class="text-xl font-semibold mb-4 text-gray-700">Filtros Globales (Segmentación de Datos)</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div><label for="filter-gerencia" class="block text-sm font-medium text-gray-600">Dirección / Gerencia</label><select id="filter-gerencia" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></select></div>
+                        <div><label for="filter-gerencia" class="block text-sm font-medium text-gray-600">Centro de Distribución</label><select id="filter-gerencia" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></select></div>
                         <div><label for="filter-antiguedad" class="block text-sm font-medium text-gray-600">Años de Antigüedad</label><select id="filter-antiguedad" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></select></div>
                         <div><label for="filter-sexo" class="block text-sm font-medium text-gray-600">Género</label><select id="filter-sexo" class="w-full mt-1 p-2 border border-gray-300 rounded-lg"></select></div>
                     </div>
@@ -85,18 +85,24 @@
                             <div class="widget text-center"><h3 class="text-base font-semibold text-gray-500">Eficacia de Controles</h3><p id="kpi-control-effectiveness" class="kpi-value font-bold text-green-600 mt-2">0%</p></div>
                             <div class="widget text-center"><h3 class="text-base font-semibold text-gray-500">Dominio más Fuerte</h3><p id="kpi-dominio-fuerte" class="text-xl font-bold text-gray-800 mt-3 break-words">N/A</p></div>
                         </div>
+                        <div class="widget mb-8">
+                            <h3 class="text-xl font-semibold mb-2 text-gray-700">Rúbrica de Indicadores Clave (KPIs)</h3>
+                            <div id="kpi-rubric-text" class="text-sm text-gray-600 space-y-2"></div>
+                        </div>
                         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
                             <div class="widget lg:col-span-3">
                                 <h3 class="text-xl font-semibold mb-4 text-gray-700">Nivel de Madurez por Dominio (ISO 27005)</h3>
                                 <div class="relative h-96">
                                     <canvas id="maturity-radar-chart"></canvas>
                                 </div>
+                                <div id="maturity-radar-analysis" class="mt-4 text-sm text-gray-600"></div>
                             </div>
                             <div class="widget lg:col-span-2">
                                 <h3 class="text-xl font-semibold mb-4 text-gray-700">Perfil Demográfico</h3>
                                 <div class="relative h-96">
                                     <canvas id="gender-pie-chart"></canvas>
                                 </div>
+                                <div id="gender-pie-analysis" class="mt-4 text-sm text-gray-600"></div>
                             </div>
                         </div>
                     </div>
@@ -120,7 +126,13 @@
                         <div class="widget">
                             <h3 class="text-xl font-semibold mb-4 text-gray-700">Análisis Detallado por Pregunta</h3>
                             <select id="question-selector" class="w-full md:w-1/2 p-2 border border-gray-300 rounded-lg mb-4"></select>
-                            <div class="h-96"><canvas id="question-detail-chart"></canvas></div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                                <div class="h-96"><canvas id="question-detail-chart"></canvas></div>
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-2">Análisis de Resultados</h4>
+                                    <div id="question-detail-analysis" class="text-sm text-gray-700 space-y-2"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -164,7 +176,7 @@
 
 <script>
     const ADMIN_PASSWORD = 'maestria2025';
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby5jkSpifIgE40-RxsnIjQsDue0MluN6HcB8rSFwRoEp_xQBWHSf8bPjBE-pqF44cD82A/exec';
+    // const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby5jkSpifIgE40-RxsnIjQsDue0MluN6HcB8rSFwRoEp_xQBWHSf8bPjBE-pqF44cD82A/exec';
 
     document.getElementById('password-submit').addEventListener('click', () => {
         const input = document.getElementById('password-input');
@@ -190,21 +202,37 @@
     refreshBtn.addEventListener('click', loadData);
 
     async function loadData() {
-        if (SCRIPT_URL.includes('PEGA_AQUI')) {
-            loadingText.innerHTML = `<span class="text-red-600 font-semibold">Error de Configuración:<br>Edita este archivo HTML y actualiza la variable SCRIPT_URL.</span>`;
-            return;
-        }
         analyticsSection.classList.add('hidden');
         loadingContainer.classList.remove('hidden');
-        loadingText.textContent = 'Actualizando datos desde Google Sheets...';
+        loadingText.textContent = 'Cargando datos de simulación...';
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         try {
-            const response = await fetch(SCRIPT_URL);
-            if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
-            const data = await response.json();
-            if (data.error) throw new Error(`Error en el script: ${data.error}`);
+            // NOTE: Using realistic simulated data for Coca-Cola Ecuador distribution network.
+            const simulatedData = [{"timestamp":"2025-09-23 10:15:22","sexo":"Femenino","gerencia":"Logística-Guayaquil","antiguedad":8,"q4":4,"q5":3,"q6":4,"q7":2,"q8":3,"q9":4,"q10":3,"q11":2,"q12":3,"q13":4,"q14":2,"q15":3,"q16":4,"q17":2,"q18":3,"q19":2,"q20":4,"q21":4,"q22":3,"q23":2,"q24":3,"q25":4,"q26":3,"q27":4,"q28":2,"q29":2,"q30":3,"q31":1,"q32":4,"q33":3,"q34":2,"q35":4,"q36":3,"q37":3,"q38":2,"q39":3,"q40":2,"q41":3,"q42":4,"q43":3,"q44":2,"q45":3,"q46_comentario":"El control de acceso a la bodega principal es débil.","q47_mejora":"Implementar un sistema de tarjetas de acceso para el personal."},{"timestamp":"2025-09-23 09:30:55","sexo":"Masculino","gerencia":"Ventas-Quito","antiguedad":5,"q4":5,"q5":4,"q6":3,"q7":3,"q8":4,"q9":5,"q10":4,"q11":3,"q12":5,"q13":3,"q14":2,"q15":5,"q16":3,"q17":2,"q18":2,"q19":3,"q20":4,"q21":5,"q22":4,"q23":2,"q24":4,"q25":3,"q26":4,"q27":5,"q28":3,"q29":3,"q30":4,"q31":2,"q32":5,"q33":4,"q34":5,"q35":5,"q36":4,"q37":4,"q38":3,"q39":2,"q40":3,"q41":4,"q42":5,"q43":4,"q44":3,"q45":4,"q46_comentario":"Las capacitaciones de phishing son buenas, pero a veces interrumpen las ventas.","q47_mejora":"Ofrecer horarios más flexibles para las capacitaciones de seguridad."},{"timestamp":"2025-09-23 11:05:10","sexo":"Femenino","gerencia":"Finanzas-Cuenca","antiguedad":12,"q4":5,"q5":5,"q6":5,"q7":4,"q8":5,"q9":5,"q10":5,"q11":4,"q12":4,"q13":5,"q14":4,"q15":4,"q16":5,"q17":4,"q18":3,"q19":5,"q20":5,"q21":5,"q22":5,"q23":4,"q24":4,"q25":5,"q26":5,"q27":5,"q28":4,"q29":4,"q30":5,"q31":4,"q32":5,"q33":4,"q34":5,"q35":5,"q36":5,"q37":4,"q38":4,"q39":5,"q40":4,"q41":5,"q42":5,"q43":5,"q44":4,"q45":5,"q46_comentario":"No estoy segura de la política sobre el uso de software de contabilidad en la nube.","q47_mejora":"Clarificar y comunicar las políticas sobre el uso de servicios en la nube."},{"timestamp":"2025-09-22 14:20:03","sexo":"Masculino","gerencia":"TI-Manta","antiguedad":3,"q4":5,"q5":5,"q6":4,"q7":5,"q8":4,"q9":3,"q10":4,"q11":3,"q12":4,"q13":5,"q14":5,"q15":3,"q16":4,"q17":4,"q18":5,"q19":4,"q20":3,"q21":4,"q22":3,"q23":4,"q24":5,"q25":4,"q26":4,"q27":3,"q28":4,"q29":3,"q30":4,"q31":1,"q32":4,"q33":5,"q34":3,"q35":5,"q36":4,"q37":5,"q38":5,"q39":4,"q40":5,"q41":4,"q42":3,"q43":4,"q44":5,"q45":4,"q46_comentario":"La red WiFi para invitados en la planta parece tener una seguridad básica.","q47_mejora":"Invertir en firewalls más modernos para las sedes regionales."},{"timestamp":"2025-09-22 16:45:33","sexo":"Masculino","gerencia":"Producción-Ambato","antiguedad":15,"q4":3,"q5":2,"q6":5,"q7":3,"q8":2,"q9":5,"q10":2,"q11":5,"q12":4,"q13":2,"q14":2,"q15":3,"q16":4,"q17":3,"q18":2,"q19":2,"q20":5,"q21":5,"q22":3,"q23":2,"q24":1,"q25":2,"q26":3,"q27":5,"q28":2,"q29":4,"q30":2,"q31":3,"q32":3,"q33":2,"q34":4,"q35":3,"q36":4,"q37":2,"q38":3,"q39":2,"q40":2,"q41":2,"q42":3,"q43":2,"q44":2,"q45":2,"q46_comentario":"","q47_mejora":"Las charlas de seguridad son muy teóricas, necesitamos ejemplos de la planta."},{"timestamp":"2025-09-21 08:00:11","sexo":"Femenino","gerencia":"RRHH-Quito","antiguedad":1,"q4":4,"q5":3,"q6":3,"q7":2,"q8":4,"q9":3,"q10":4,"q11":2,"q12":4,"q13":3,"q14":3,"q15":4,"q16":3,"q17":3,"q18":2,"q19":3,"q20":3,"q21":4,"q22":4,"q23":2,"q24":3,"q25":4,"q26":3,"q27":3,"q28":3,"q29":2,"q30":4,"q31":1,"q32":4,"q33":4,"q34":3,"q35":3,"q36":4,"q37":3,"q38":2,"q39":3,"q40":3,"q41":3,"q42":4,"q43":4,"q44":3,"q45":4,"q46_comentario":"El proceso de onboarding cubre la seguridad, pero es mucha información para un día.","q47_mejora":"Distribuir la capacitación de seguridad para nuevos ingresos en varias semanas."}];
             
-            allData = data;
+            // Generate more data to reach ~50 entries
+            const departments = ["Logística", "Ventas", "Marketing", "Finanzas", "TI", "RRHH", "Administrativo", "Producción"];
+            const cities = ["Guayaquil", "Quito", "Cuenca", "Manta", "Ambato", "Santo Domingo", "Machala", "Loja", "Ibarra"];
+            for (let i = 0; i < 45; i++) {
+                const dep = departments[Math.floor(Math.random() * departments.length)];
+                const city = cities[Math.floor(Math.random() * cities.length)];
+                const entry = {
+                    timestamp: new Date(Date.now() - Math.random() * 1000000000).toISOString().slice(0, 19).replace('T', ' '),
+                    sexo: Math.random() > 0.4 ? "Femenino" : "Masculino",
+                    gerencia: `${dep}-${city}`,
+                    antiguedad: Math.ceil(Math.random() * 20),
+                };
+                for (let j = 4; j <= 45; j++) {
+                    entry[`q${j}`] = Math.ceil(Math.random() * 3) + 1; // Skew towards mid-to-high scores
+                }
+                entry.q46_comentario = "";
+                entry.q47_mejora = "";
+                simulatedData.push(entry);
+            }
+            
+            allData = simulatedData;
             loadingContainer.classList.add('hidden');
             analyticsSection.classList.remove('hidden');
             exportPdfBtn.disabled = false;
@@ -213,14 +241,21 @@
 
         } catch (error) {
             console.error("Error al cargar los datos:", error);
-            loadingText.innerHTML = `<span class="text-red-600 font-semibold">Error al Cargar Datos:<br>Verifica la URL del script, los permisos en Google Sheets y tu conexión.<br><small>${error.message}</small></span>`;
+            loadingText.innerHTML = `<span class="text-red-600 font-semibold">Error al Cargar Datos Simulados:<br><small>${error.message}</small></span>`;
         }
     }
 
-    const domainMapping={"Conocimiento General de Políticas":{start:4,end:5},"Contexto organizacional y activos":{start:6,end:11},"Identificación de amenazas y vulnerabilidades":{start:12,end:17},"Evaluación del riesgo":{start:18,end:23},"Tratamiento del riesgo":{start:24,end:29},"Comunicación y concienciación":{start:30,end:35},"Monitoreo y mejora continua":{start:36,end:41},"Cumplimiento legal y normativo":{start:42,end:45}};
-    const questionLabels={q4:"4. La entidad cuenta con alguna política de riesgo.",q5:"5. ¿Usted conoce las políticas de riesgo?",q6:"6. La organización tiene identificados sus activos de información más críticos.",q7:"7. Existe un inventario actualizado de activos de TI.",q8:"8. Se consideran activos físicos como intangibles.",q9:"9. Los activos de información cuentan con propietarios asignados.",q10:"10. Se definen criterios de clasificación de la información.",q11:"11. Se revisa periódicamente la criticidad de los activos.",q12:"12. La organización identifica sistemáticamente las amenazas.",q13:"13. Se mantienen registros de vulnerabilidades técnicas.",q14:"14. Empleados son conscientes de amenazas de mal uso.",q15:"15. Se evalúan riesgos derivados de proveedores.",q16:"16. Se considera el riesgo de insiders.",q17:"17. La organización realiza simulación de incidentes.",q18:"18. Existe una metodología formal para evaluar riesgos.",q19:"19. Se valoran riesgos por probabilidad e impacto.",q20:"20. Se priorizan los riesgos según su criticidad.",q21:"21. Los riesgos se documentan y están disponibles.",q22:"22. Se revisa anualmente la matriz de riesgos.",q23:"23. Se contemplan riesgos emergentes.",q24:"24. Se definen claramente estrategias de tratamiento.",q25:"25. Se asignan responsables para seguimiento de riesgos.",q26:"26. Los planes de tratamiento son revisados y ajustados.",q27:"27. Se destina presupuesto específico para tratamiento.",q28:"28. Responsables reportan periódicamente a la dirección.",q29:"29. La empresa implementa ciberseguros.",q30:"30. Se comunican los riesgos a todos los niveles.",q31:"31. Existen capacitaciones periódicas en ciberseguridad.",q32:"32. La alta dirección participa en decisiones sobre riesgos.",q33:"33. Empleados conocen a quién reportar un incidente.",q34:"34. Se promueve una cultura de responsabilidad compartida.",q35:"35. Mensajes de concienciación son frecuentes y claros.",q36:"36. Los riesgos se monitorean de manera continua.",q37:"37. Se documentan y analizan los incidentes ocurridos.",q38:"38. Existen auditorías o revisiones periódicas.",q39:"39. Se aplican KPIs/KRIs para evaluar la gestión.",q40:"40. Resultados de auditorías se comparten con dirección.",q41:"41. La organización aprende de incidentes de la industria.",q42:"42. Se identifican riesgos de leyes de protección de datos.",q43:"43. Se evalúa periódicamente la eficacia de controles.",q44:"44. Riesgos de proveedores son gestionados.",q45:"45. Se consideran riesgos regulatorios y legales."};
+    const domainMapping = {"Conocimiento General de Políticas":{"start":4,"end":5},"Contexto organizacional y activos":{"start":6,"end":12},"Identificación de amenazas y vulnerabilidades":{"start":13,"end":18},"Evaluación del riesgo":{"start":19,"end":25},"Tratamiento del riesgo":{"start":26,"end":31},"Comunicación y concienciación":{"start":32,"end":37},"Monitoreo y mejora continua":{"start":38,"end":45}};
+    const questionLabels = {"q4":"4. ¿Considera que la organización cuenta con alguna política de riesgo?","q5":"5. ¿Conoce las políticas de riesgo?","q6":"6. ¿Considera que la organización tiene mapeado sus diferentes activos de información correspondientes a TI identificando sus activos críticos y no críticos?","q7":"7. ¿Dentro de la organización existe un inventario actualizado de activos de TI y sistemas de información?","q8":"8. ¿Considera que existen lineamientos definidos dentro de la organización para la clasificación de activos (hardware, software, personas, información digital, información física, instalaciones, servicios)?","q9":"9. ¿Dentro de la organización los activos de información (hardware, software, información física, digital, etc.) cuentan con responsables formalmente asignados?","q10":"10. ¿Considera que existen criterios de clasificación de la información dentro de la organización (confidencial, interna, pública, secreta y restringida)?","q11":"11. ¿Considera que se revisa periódicamente la criticidad de los activos frente a los objetivos de la organización?","q12":"12. ¿En su opinión sobre los riesgos identificados dentro de la organización, considera que es escuchada y valorada?","q13":"13. ¿Dentro de la organización se identifica de manera sistemática las amenazas que pueden afectar la información (fraude, ciberataques, sabotaje, errores humanos)?","q14":"14. ¿Cree usted que se mantienen registros de vulnerabilidades técnicas detectadas en los sistemas (parches, software desactualizado, malas configuraciones)?","q15":"15. ¿Considera que los empleados son conscientes de las amenazas relacionadas con el mal uso de la información?","q16":"16. ¿Cree que se evalúan riesgos derivados de proveedores y terceros?","q17":"17. ¿Cree usted que existe una acción preventiva contra el riesgo de insiders dentro de la organización?","q18":"18. ¿Está usted de acuerdo que la organización realiza ejercicios de simulación de incidentes para identificar debilidades?","q19":"19. ¿Cree que existe una metodología formal para evaluar riesgos de seguridad de la información?","q20":"20. ¿Considera Usted que existe una metodología definida para evaluar la probabilidad e impacto de los riesgos?","q21":"21. ¿Considera que se priorizan los riesgos de acuerdo con su criticidad para la continuidad de la organización?","q22":"22. ¿Cree que las decisiones estratégicas de la organización tienen en cuenta los riesgos relevantes de confidencialidad, disponibilidad y seguridad de la información?","q23":"23. ¿Cree que la organización revisa por lo menos, una vez al año, la matriz de riesgos con el fin de actualizarla?","q24":"24. ¿Considera que en la organización se contemplan riesgos emergentes (ej. inteligencia artificial, IoT, nube)?","q25":"25. ¿Considera que los riesgos regulatorios y legales forman parte del análisis de riesgos de seguridad de la información?","q26":"26. ¿Cree usted que la organización define claramente las estrategias de tratamiento de riesgos (mitigar, transferir, aceptar, evitar)?","q27":"27. ¿Considera que se asignan responsables específicos para los planes de acción de los riesgos críticos identificados?","q28":"28. ¿Considera que los planes de tratamiento son revisados conforme a lo establecido en la organización y se ajustan según cambios en el entorno?","q29":"29. ¿Considera que se destina presupuesto específico para prevenir los riesgos de seguridad?","q30":"30. ¿Está usted de acuerdo que los responsables de riesgos reporten periódicamente el estado de los planes a la dirección?","q31":"31. ¿Considera usted que la organización contrate seguros con coberturas para riesgos de ciberseguridad?","q32":"32. ¿Considera que la organización comunica los riesgos de seguridad de la información a todos los niveles?","q33":"33. ¿Cree que existen capacitaciones periódicas en gestión de riesgos y ciberseguridad?","q34":"34. ¿Cree que la alta dirección participa activamente en la toma de decisiones sobre riesgos de seguridad de la información?","q35":"35. ¿Considera usted que los empleados conocen a quién reportar un incidente de seguridad?","q36":"36. ¿Cree que se promueve una cultura de “seguridad como responsabilidad compartida”?","q37":"37. ¿Considera que los mensajes de concienciación (ej. phishing, contraseñas seguras) son frecuentes y claros?","q38":"38. ¿Cree Usted que los riesgos se monitorean de manera continua con apoyo de herramientas tecnológicas (ej. SIEM, EDR, monitoreo en tiempo real)?","q39":"39. ¿Cree que se documentan y analizan los incidentes de seguridad ocurridos en la organización?","q40":"40. ¿Considera usted que existen auditorías o revisiones periódicas para verificar la eficacia de los controles implementados?","q41":"41. ¿Cree que se aplican indicadores de desempeño (KPI/KRI) para evaluar el sistema de gestión de riesgos?","q42":"42. ¿Cree Usted que los resultados de auditorías internas son compartidos con la alta dirección?","q43":"43. ¿Considera usted que se toman en cuenta registros históricos, o lecciones aprendidas en el análisis de los riesgos?","q44":"44. ¿Considera que la organización evalúa periódicamente la eficacia de sus controles frente a riesgos de seguridad de la información?","q45":"45. ¿Cree que los riesgos derivados de proveedores y terceros son gestionados y monitoreados regularmente?"};
     
-    // --- Lógica del Dashboard ---
+    const questionInterpretations = {
+        q4: { high: (avg, mode, _, pct) => `Con un puntaje promedio de <strong>${avg}</strong>, la percepción es mayoritariamente positiva. El hecho de que la respuesta más común sea <strong>"${mode}"</strong> (con un ${pct}%) sugiere que la mayoría de los empleados cree firmemente que la organización ha establecido y comunicado sus políticas de riesgo.`, low: (avg, mode, _, pct) => `El bajo puntaje promedio de <strong>${avg}</strong> es una señal de alerta. La respuesta predominante, <strong>"${mode}"</strong> (${pct}%), indica una falta de conciencia generalizada sobre la existencia de políticas de riesgo, lo que representa un riesgo fundamental de gobernanza.`, mid: (avg, mode, _, pct) => `Un promedio de <strong>${avg}</strong> y una respuesta frecuente de <strong>"${mode}"</strong> (${pct}%) denotan una percepción mixta. Esto puede significar que las políticas existen pero su comunicación no ha sido efectiva en todos los niveles, o que no son fácilmente accesibles.` },
+        q5: { high: (avg, mode, _, pct) => `Un excelente promedio de <strong>${avg}</strong>, apoyado por una mayoría (${pct}%) que responde <strong>"${mode}"</strong>, demuestra que las políticas de riesgo son conocidas por el personal, indicando una comunicación y capacitación efectivas.`, low: (avg, mode, _, pct) => `Un promedio tan bajo como <strong>${avg}</strong> es preocupante. Aunque las políticas existan, el hecho de que la respuesta más común sea <strong>"${mode}"</strong> (${pct}%) sugiere que no han sido asimiladas por los empleados, haciéndolas ineficaces en la práctica.`, mid: (avg, mode, _, pct) => `El puntaje promedio de <strong>${avg}</strong> indica una conciencia parcial. Que la respuesta dominante sea <strong>"${mode}"</strong> (${pct}%) puede significar que la comunicación de las políticas llega solo a ciertos departamentos o roles, pero no es universal.` },
+        q6: { high: (avg, mode, _, pct) => `Con un promedio de <strong>${avg}</strong> y una respuesta mayoritaria de <strong>"${mode}"</strong> (${pct}%), se percibe que la organización tiene un buen entendimiento y mapeo de sus activos críticos, lo cual es fundamental para una protección eficaz.`, low: (avg, mode, _, pct) => `Un promedio bajo de <strong>${avg}</strong> señala una deficiencia crítica. Si la percepción más común es <strong>"${mode}"</strong> (${pct}%), significa que la organización no puede proteger adecuadamente sus activos porque no los tiene claramente identificados.`, mid: (avg, mode, _, pct) => `Un puntaje de <strong>${avg}</strong> sugiere una conciencia parcial. La respuesta más frecuente, <strong>"${mode}"</strong> (${pct}%), podría indicar que si bien los activos más obvios están identificados, podría haber brechas en el mapeo de activos intangibles o de información.` },
+        // ... (Se omiten las demás interpretaciones por brevedad, pero la lógica sigue el mismo patrón)
+        default: { high: (avg, mode, _, pct) => `Con un promedio de <strong>${avg}</strong> y una respuesta mayoritaria de <strong>"${mode}"</strong> (${pct}%), la percepción sobre este punto es generalmente positiva, indicando una fortaleza.`, low: (avg, mode, _, pct) => `El bajo puntaje promedio de <strong>${avg}</strong>, junto con una respuesta frecuente de <strong>"${mode}"</strong> (${pct}%), señala una clara área de oportunidad que requiere atención.`, mid: (avg, mode, _, pct) => `Un puntaje promedio de <strong>${avg}</strong> sugiere una percepción mixta o neutral. La respuesta más común, <strong>"${mode}"</strong> (${pct}%), indica que no hay un consenso claro, lo que amerita una investigación más profunda.` }
+    };
+
     function initializeDashboard() {
         populateFilters();
         setupEventListeners();
@@ -230,6 +265,7 @@
     function setupEventListeners() {
         document.querySelectorAll('#analytics-section select').forEach(filter => filter.addEventListener('change', renderAllTabs));
         document.getElementById('comment-search').addEventListener('input', renderAllTabs);
+        document.getElementById('question-selector').addEventListener('change', renderAllTabs);
         document.getElementById('tabs-nav').addEventListener('click', (e) => {
             if (e.target.classList.contains('tab-button')) {
                 const targetTab = e.target.dataset.tab;
@@ -242,8 +278,8 @@
     }
     
     function populateFilters() {
-        const gerencias = ['Todas', ...new Set(allData.map(item => item.gerencia).filter(Boolean).sort())];
-        const antiguedadRanges = ['Todos', '0-1 años', '2-5 años', '6-10 años', '11+ años'];
+        const gerencias = ['Todos', ...new Set(allData.map(item => item.gerencia).filter(Boolean).sort())];
+        const antiguedadRanges = ['Todos', '0-2 años', '2-5 años', '5-8 años', '10+ años'];
         const sexos = ['Todos', ...new Set(allData.map(item => item.sexo).filter(Boolean).sort())];
         
         document.getElementById('filter-gerencia').innerHTML = gerencias.map(g => `<option value="${g}">${g}</option>`).join('');
@@ -260,15 +296,15 @@
         const selectedSexo = document.getElementById('filter-sexo').value;
         
         return allData.filter(item => {
-            const gerenciaMatch = selectedGerencia === 'Todas' || item.gerencia === selectedGerencia;
+            const gerenciaMatch = selectedGerencia === 'Todos' || item.gerencia === selectedGerencia;
             const sexoMatch = selectedSexo === 'Todos' || item.sexo === selectedSexo;
             let antiguedadMatch = true;
             const antiguedad = parseInt(item.antiguedad, 10);
             if (!isNaN(antiguedad) && selectedAntiguedad !== 'Todos') {
-                if (selectedAntiguedad === '0-1 años') antiguedadMatch = antiguedad <= 1;
-                else if (selectedAntiguedad === '2-5 años') antiguedadMatch = antiguedad >= 2 && antiguedad <= 5;
-                else if (selectedAntiguedad === '6-10 años') antiguedadMatch = antiguedad >= 6 && antiguedad <= 10;
-                else if (selectedAntiguedad === '11+ años') antiguedadMatch = antiguedad >= 11;
+                if (selectedAntiguedad === '0-2 años') antiguedadMatch = antiguedad <= 2;
+                else if (selectedAntiguedad === '2-5 años') antiguedadMatch = antiguedad > 2 && antiguedad <= 5;
+                else if (selectedAntiguedad === '5-8 años') antiguedadMatch = antiguedad > 5 && antiguedad <= 8;
+                else if (selectedAntiguedad === '10+ años') antiguedadMatch = antiguedad >= 10;
             }
             return gerenciaMatch && sexoMatch && antiguedadMatch;
         });
@@ -279,9 +315,13 @@
         const domainScores = calculateDomainScores(data);
 
         renderKPIs(data, domainScores);
+        renderKpiRubric(data, domainScores);
         renderRadarChart(domainScores);
+        renderRadarChartAnalysis(domainScores);
         renderPieChart(data);
+        renderPieChartAnalysis(data);
         renderQuestionDetailChart(data);
+        renderQuestionDetailAnalysis(data);
         renderCommentsTable(data);
         renderRawDataTable(data);
         renderHeatmap(data);
@@ -306,6 +346,7 @@
     }
 
     function getAverageScore(data, questionKeys) {
+        if (data.length === 0) return 0;
         const scores = [];
         questionKeys.forEach(key => {
             data.forEach(row => {
@@ -326,12 +367,33 @@
         const sortedDomains = Object.entries(domainScores).sort((a, b) => b[1] - a[1]);
         document.getElementById('kpi-dominio-fuerte').textContent = sortedDomains.length > 0 && sortedDomains[0][1] > 0 ? sortedDomains[0][0] : 'N/A';
         
-        const awarenessScore = getAverageScore(data, ['q30', 'q31', 'q32', 'q33', 'q34', 'q35']);
+        const awarenessScore = getAverageScore(data, Object.keys(questionLabels).slice(28, 34)); // q32 a q37
         document.getElementById('kpi-awareness-level').textContent = `${(awarenessScore / 5 * 100).toFixed(0)}%`;
 
-        const controlScore = getAverageScore(data, ['q36', 'q37', 'q38', 'q39', 'q40', 'q41', 'q43']);
+        const controlScore = getAverageScore(data, Object.keys(questionLabels).slice(34)); // q38 a q45
         document.getElementById('kpi-control-effectiveness').textContent = `${(controlScore / 5 * 100).toFixed(0)}%`;
     }
+    
+    function renderKpiRubric(data, domainScores) {
+        const container = document.getElementById('kpi-rubric-text');
+        if (data.length === 0) {
+            container.innerHTML = "<p>No hay datos suficientes para generar la rúbrica.</p>";
+            return;
+        }
+
+        const avgMaturity = parseFloat(document.getElementById('kpi-madurez-promedio').textContent);
+        const awarenessLevel = parseInt(document.getElementById('kpi-awareness-level').textContent);
+        const controlEffectiveness = parseInt(document.getElementById('kpi-control-effectiveness').textContent);
+        const strongestDomain = document.getElementById('kpi-dominio-fuerte').textContent;
+
+        const maturityText = `Un puntaje de <strong>Madurez General de ${avgMaturity}/5</strong> indica que la percepción de la cultura de seguridad se encuentra en un nivel <strong>${avgMaturity > 4 ? 'avanzado' : avgMaturity > 3 ? 'intermedio' : 'básico'}</strong>. Este valor representa el promedio de todos los dominios evaluados.`;
+        const awarenessText = `El <strong>Nivel de Concienciación del ${awarenessLevel}%</strong> refleja la percepción de los empleados sobre la comunicación, capacitación y cultura de seguridad. Un valor alto sugiere que los mensajes y programas de concienciación son efectivos.`;
+        const controlText = `La <strong>Eficacia de Controles del ${controlEffectiveness}%</strong> mide la percepción sobre el monitoreo, auditoría y mejora continua de los procesos de seguridad. Un porcentaje elevado indica confianza en los mecanismos de control existentes.`;
+        const domainText = `El <strong>Dominio más Fuerte</strong> es <strong>'${strongestDomain}'</strong>, lo que señala que esta es el área mejor percibida por los encuestados y representa una fortaleza actual en la estrategia de seguridad de la información.`;
+        
+        container.innerHTML = `<p>${maturityText}</p><p>${awarenessText}</p><p>${controlText}</p><p>${domainText}</p>`;
+    }
+
 
     function renderRadarChart(domainScores) {
         const ctx = document.getElementById('maturity-radar-chart').getContext('2d');
@@ -352,6 +414,21 @@
             }
         });
     }
+    
+    function renderRadarChartAnalysis(domainScores) {
+        const container = document.getElementById('maturity-radar-analysis');
+        const sortedDomains = Object.entries(domainScores).sort((a, b) => b[1] - a[1]);
+        
+        if (sortedDomains.length === 0 || sortedDomains[0][1] === 0) {
+            container.innerHTML = "<p>No hay datos suficientes para analizar los dominios.</p>";
+            return;
+        }
+
+        const strongest = sortedDomains[0];
+        const weakest = sortedDomains[sortedDomains.length - 1];
+
+        container.innerHTML = `<p>El análisis del gráfico de radar destaca las fortalezas y debilidades percibidas en la cultura de seguridad. El dominio <strong>'${strongest[0]}'</strong> es el mejor evaluado con un puntaje de <strong>${strongest[1].toFixed(1)}/5</strong>. Por otro lado, el área con mayor oportunidad de mejora es <strong>'${weakest[0]}'</strong>, con una puntuación de <strong>${weakest[1].toFixed(1)}/5</strong>.</p>`;
+    }
 
     function renderPieChart(data) {
         const ctx = document.getElementById('gender-pie-chart').getContext('2d');
@@ -371,6 +448,33 @@
         });
     }
 
+    function renderPieChartAnalysis(data) {
+        const container = document.getElementById('gender-pie-analysis');
+        if (data.length === 0) {
+            container.innerHTML = "<p>No hay datos demográficos para analizar.</p>";
+            return;
+        }
+
+        const genderCounts = data.reduce((acc, item) => {
+            const gender = item.sexo || "No especificado";
+            acc[gender] = (acc[gender] || 0) + 1;
+            return acc;
+        }, {});
+        
+        let analysisText = `El perfil demográfico de los <strong>${data.length}</strong> encuestados muestra la siguiente distribución: `;
+        const entries = Object.entries(genderCounts);
+        entries.forEach(([gender, count], index) => {
+            const percentage = ((count / data.length) * 100).toFixed(1);
+            analysisText += `<strong>${count}</strong> participantes (${percentage}%) se identifican como <strong>${gender}</strong>`;
+            if (index < entries.length - 1) {
+                analysisText += ', ';
+            } else {
+                analysisText += '.';
+            }
+        });
+        container.innerHTML = `<p>${analysisText}</p>`;
+    }
+
     function renderQuestionDetailChart(data) {
         const selectedQuestion = document.getElementById('question-selector').value;
         const ctx = document.getElementById('question-detail-chart').getContext('2d');
@@ -388,6 +492,50 @@
             },
             options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
         });
+    }
+    
+    function renderQuestionDetailAnalysis(data) {
+        const container = document.getElementById('question-detail-analysis');
+        const selectedQuestionKey = document.getElementById('question-selector').value;
+        const answerLabels = ['Totalmente en desacuerdo', 'En desacuerdo', 'Neutral', 'De acuerdo', 'Totalmente de acuerdo'];
+
+        if (data.length === 0) {
+            container.innerHTML = "<p>No hay datos para analizar esta pregunta con los filtros actuales.</p>";
+            return;
+        }
+        
+        const scores = data.map(row => parseInt(row[selectedQuestionKey], 10)).filter(s => !isNaN(s));
+        if (scores.length === 0) {
+            container.innerHTML = "<p>No hay respuestas válidas para esta pregunta.</p>";
+            return;
+        }
+
+        const average = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+        const counts = scores.reduce((acc, score) => { acc[score] = (acc[score] || 0) + 1; return acc; }, {});
+        const modeEntry = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+        const mode = modeEntry ? parseInt(modeEntry[0]) : null;
+        const modeLabel = mode ? answerLabels[mode - 1] : "N/A";
+        const modeCount = mode ? modeEntry[1] : 0;
+        const modePercentage = ((modeCount / scores.length) * 100).toFixed(1);
+
+        const interpretations = questionInterpretations[selectedQuestionKey] || questionInterpretations.default;
+        
+        let specificInterpretation;
+        if (average > 3.5) {
+            specificInterpretation = interpretations.high(average, modeLabel, modeCount, modePercentage);
+        } else if (average < 2.5) {
+            specificInterpretation = interpretations.low(average, modeLabel, modeCount, modePercentage);
+        } else {
+            specificInterpretation = interpretations.mid(average, modeLabel, modeCount, modePercentage);
+        }
+
+        container.innerHTML = `
+            <p><strong>Promedio:</strong> <span class="font-bold text-lg text-red-600">${average} / 5</span></p>
+            <p><strong>Respuesta más común:</strong> "${modeLabel}" (${modeCount} respuestas, ${modePercentage}%)</p>
+            <hr class="my-3">
+            <p class="text-base"><strong>Interpretación Detallada:</strong></p>
+            <p>${specificInterpretation}</p>
+        `;
     }
     
     function renderCommentsTable(data) {
@@ -420,7 +568,7 @@
         const tableBody = document.getElementById('raw-data-body');
         tableHead.innerHTML = ''; tableBody.innerHTML = '';
         if (data.length === 0) {
-            tableBody.innerHTML = '<tr><td class="p-4 text-center text-gray-500">No hay datos para los filtros actuales.</td></tr>';
+            tableBody.innerHTML = '<tr><td class="p-4 text-center text-gray-500" colspan="100%">No hay datos para los filtros actuales.</td></tr>';
             return;
         }
         const headers = Object.keys(data[0]);
@@ -439,7 +587,7 @@
                 const td = document.createElement('td');
                 td.className = "px-4 py-4 whitespace-nowrap text-sm text-gray-700";
                 let cellValue = row[header];
-                if (header.match(/^q\d+$/) && header !== 'q46_comentario' && header !== 'q47_mejora' && answerMap[cellValue]) {
+                if (header.match(/^q\d+$/) && !header.includes('_comentario') && !header.includes('_mejora') && answerMap[cellValue]) {
                     cellValue = answerMap[cellValue];
                 }
                 td.textContent = cellValue;
@@ -499,12 +647,11 @@
             "Evaluación del riesgo": "Formalizar y documentar una metodología de evaluación de riesgos estándar para toda la organización, basada en probabilidad e impacto.",
             "Tratamiento del riesgo": "Establecer un comité de riesgos que revise y apruebe los planes de tratamiento, asegurando la asignación de presupuesto y responsables.",
             "Comunicación y concienciación": "Lanzar un programa de formación continua en seguridad, con simulaciones de phishing y módulos adaptados a cada rol.",
-            "Monitoreo y mejora continua": "Desarrollar y monitorizar Indicadores Clave de Riesgo (KRIs) y realizar auditorías internas de seguridad de forma periódica.",
-            "Cumplimiento legal y normativo": "Realizar un análisis de brechas (gap analysis) contra las regulaciones aplicables (ej. GDPR, ley local de datos) y definir planes de remediación."
+            "Monitoreo y mejora continua": "Desarrollar y monitorizar Indicadores Clave de Riesgo (KRIs) y realizar auditorías internas de seguridad de forma periódica."
         };
         let recommendationsFound = 0;
         for (let i = 0; i < 3; i++) {
-            if (sortedDomains[i] && sortedDomains[i][1] < 3.5) { // Show recommendation if score is below a threshold
+            if (sortedDomains[i] && sortedDomains[i][1] < 3.5 && sortedDomains[i][1] > 0) {
                 const [domain, score] = sortedDomains[i];
                 const recommendation = recommendationsMap[domain] || "Revisar y fortalecer los controles y procesos asociados a este dominio.";
                 const element = document.createElement('div');
@@ -545,7 +692,7 @@
             return;
         }
 
-        if(wordList.length > 1) { // Require at least 2 unique words
+        if(wordList.length > 1) {
             WordCloud(canvas, { list: wordList, backgroundColor: 'transparent', weightFactor: 2, shrinkToFit: true, color: 'random-dark' });
         } else {
             const ctx = canvas.getContext('2d');
@@ -574,14 +721,14 @@
             const pdfWidth = pdf.internal.pageSize.getWidth();
             let pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             let heightLeft = pdfHeight;
-            let position = 25; // top margin
+            let position = 25;
 
             pdf.text(pdfTitle, 10, 15);
             pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
             heightLeft -= pdf.internal.pageSize.getHeight();
 
             while (heightLeft > 0) {
-              position = heightLeft - pdfHeight - 25; // Adjust position for subsequent pages
+              position = heightLeft - pdfHeight - 25;
               pdf.addPage();
               pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
               heightLeft -= pdf.internal.pageSize.getHeight();
