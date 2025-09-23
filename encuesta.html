@@ -88,7 +88,6 @@
 
 <script>
     // URL de la aplicación web de Google Apps Script.
-    // IMPORTANTE: Debes reemplazar esta URL por la que generes al desplegar tu script.
     const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNErJyZIlZB6iuUrz7Hh7A1NmF30ECbDyeZrmGo4ERzVbywFkOLL6ldUM0O6Qe5vOT/exec';
 
     const surveyContainer = document.getElementById('iso-survey-form');
@@ -101,8 +100,8 @@
     const thankYouMessage = document.getElementById('thank-you-message');
     const surveyMainContainer = document.getElementById('survey-container');
     
-    // JSON con todas las preguntas, sin cambios.
-    const questionsData = [{"domain":"Conocimiento General de Políticas","questions":["4. La entidad cuenta con alguna política de riesgo.","5. ¿Usted conoce las políticas de riesgo?"]},{"domain":"Contexto organizacional y activos","questions":["6. La organización tiene identificados sus activos de información más críticos (bases de datos, etc.).","7. Existe un inventario actualizado de activos de TI y sistemas de información.","8. Se consideran tanto activos físicos como intangibles en la gestión de riesgos.","9. Los activos de información cuentan con propietarios formalmente asignados.","10. Se definen criterios de clasificación de la información (confidencial, interna, pública).","11. Se revisa periódicamente la criticidad de los activos frente a los objetivos del negocio."]},{"domain":"Identificación de amenazas y vulnerabilidades","questions":["12. La organización identifica de manera sistemática las amenazas que pueden afectar la información.","13. Se mantienen registros de vulnerabilidades técnicas detectadas en los sistemas.","14. Los empleados son conscientes de las amenazas relacionadas con el mal uso de la información.","15. Se evalúan riesgos derivados de proveedores y terceros.","16. Se considera el riesgo de insiders (empleados malintencionados).","17. La organización realiza ejercicios de simulación de incidentes para identificar debilidades."]},{"domain":"Evaluación del riesgo","questions":["18. Existe una metodología formal para evaluar riesgos de seguridad de la información.","19. Se valoran los riesgos considerando tanto la probabilidad como el impacto en el negocio.","20. Se priorizan los riesgos de acuerdo con su criticidad para la continuidad del negocio.","21. Los riesgos se documentan y se encuentran disponibles para consulta.","22. La organización revisa anualmente la matriz de riesgos para mantenerla actualizada.","23. Se contemplan riesgos emergentes (ej. inteligencia artificial, IoT, nube)."]},{"domain":"Tratamiento del riesgo","questions":["24. La organización define claramente las estrategias de tratamiento de riesgos (mitigar, transferir, etc.).","25. Se asignan responsables específicos para el seguimiento de cada riesgo.","26. Los planes de tratamiento son revisados y se ajustan según cambios en el entorno.","27. Se destina presupuesto específico para el tratamiento de riesgos de seguridad.","28. Los responsables de riesgos reportan periódicamente el estado de los planes a la dirección.","29. La empresa implementa seguros o coberturas para riesgos de ciberseguridad."]},{"domain":"Comunicación y concienciación","questions":["30. Se comunican los riesgos de seguridad de la información a todos los niveles de la organización.","31. Existen capacitaciones periódicas en gestión de riesgos y ciberseguridad.","32. La alta dirección participa activamente en la toma de decisiones sobre riesgos.","33. Los empleados conocen a quién reportar un incidente de seguridad.","34. Se promueve una cultura de “seguridad como responsabilidad compartida”.","35. Los mensajes de concienciación (ej. phishing) son frecuentes y claros."]},{"domain":"Monitoreo y mejora continua","questions":["36. Los riesgos se monitorean de manera continua con apoyo de herramientas tecnológicas.","37. Se documentan y analizan los incidentes de seguridad ocurridos.","38. Existen auditorías o revisiones periódicas para verificar la eficacia de los controles.","39. Se aplican indicadores de desempeño (KPI/KRI) para evaluar la gestión de riesgos.","40. Los resultados de auditorías internas son compartidos con la alta dirección.","41. La organización aprende de incidentes ocurridos en la industria para fortalecer sus controles."]},{"domain":"Cumplimiento legal y normativo","questions":["42. Se identifican y analizan riesgos relacionados con leyes de protección de datos.","43. La organización evalúa periódicamente la eficacia de sus controles.","44. Los riesgos derivados de proveedores y terceros son gestionados y monitoreados.","45. Se consideran riesgos regulatorios y legales en el proceso de evaluación."]},{"domain":"Comentarios Finales","questions":[{"type":"textarea","name":"q46_comentario","label":"46. ¿Tiene algún comentario adicional sobre la gestión de riesgos en la organización?"},{"type":"textarea","name":"q47_mejora","label":"47. ¿Qué oportunidades de mejora considera más importantes?"}]}];
+    // JSON con todas las preguntas, actualizado según el documento.
+    const questionsData = [{"domain":"Conocimiento General de Políticas","questions":["4. ¿Considera que la organización cuenta con alguna política de riesgo?","5. ¿Conoce las políticas de riesgo?"]},{"domain":"Contexto organizacional y activos","questions":["6. ¿Considera que la organización tiene mapeado sus diferentes activos de información correspondientes a TI identificando sus activos críticos y no críticos?","7. ¿Dentro de la organización existe un inventario actualizado de activos de TI y sistemas de información?","8. ¿Considera que existen lineamientos definidos dentro de la organización para la clasificación de activos (hardware, software, personas, información digital, información física, instalaciones, servicios)?","9. ¿Dentro de la organización los activos de información (hardware, software, información física, digital, etc.) cuentan con responsables formalmente asignados?","10. ¿Considera que existen criterios de clasificación de la información dentro de la organización (confidencial, interna, pública, secreta y restringida)?","11. ¿Considera que se revisa periódicamente la criticidad de los activos frente a los objetivos de la organización?","12. ¿En su opinión sobre los riesgos identificados dentro de la organización, considera que es escuchada y valorada?"]},{"domain":"Identificación de amenazas y vulnerabilidades","questions":["13. ¿Dentro de la organización se identifica de manera sistemática las amenazas que pueden afectar la información (fraude, ciberataques, sabotaje, errores humanos)?","14. ¿Cree usted que se mantienen registros de vulnerabilidades técnicas detectadas en los sistemas (parches, software desactualizado, malas configuraciones)?","15. ¿Considera que los empleados son conscientes de las amenazas relacionadas con el mal uso de la información?","16. ¿Cree que se evalúan riesgos derivados de proveedores y terceros?","17. ¿Cree usted que existe una acción preventiva contra el riesgo de insiders dentro de la organización?","18. ¿Está usted de acuerdo que la organización realiza ejercicios de simulación de incidentes para identificar debilidades?"]},{"domain":"Evaluación del riesgo","questions":["19. ¿Cree que existe una metodología formal para evaluar riesgos de seguridad de la información?","20. ¿Considera Usted que existe una metodología definida para evaluar la probabilidad e impacto de los riesgos?","21. ¿Considera que se priorizan los riesgos de acuerdo con su criticidad para la continuidad de la organización?","22. ¿Cree que las decisiones estratégicas de la organización tienen en cuenta los riesgos relevantes de confidencialidad, disponibilidad y seguridad de la información?","23. ¿Cree que la organización revisa por lo menos, una vez al año, la matriz de riesgos con el fin de actualizarla?","24. ¿Considera que en la organización se contemplan riesgos emergentes (ej. inteligencia artificial, IoT, nube)?","25. ¿Considera que los riesgos regulatorios y legales forman parte del análisis de riesgos de seguridad de la información?"]},{"domain":"Tratamiento del riesgo","questions":["26. ¿Cree usted que la organización define claramente las estrategias de tratamiento de riesgos (mitigar, transferir, aceptar, evitar)?","27. ¿Considera que se asignan responsables específicos para los planes de acción de los riesgos críticos identificados?","28. ¿Considera que los planes de tratamiento son revisados conforme a lo establecido en la organización y se ajustan según cambios en el entorno?","29. ¿Considera que se destina presupuesto específico para prevenir los riesgos de seguridad?","30. ¿Está usted de acuerdo que los responsables de riesgos reporten periódicamente el estado de los planes a la dirección?","31. ¿Considera usted que la organización contrate seguros con coberturas para riesgos de ciberseguridad?"]},{"domain":"Comunicación y concienciación","questions":["32. ¿Considera que la organización comunica los riesgos de seguridad de la información a todos los niveles?","33. ¿Cree que existen capacitaciones periódicas en gestión de riesgos y ciberseguridad?","34. ¿Cree que la alta dirección participa activamente en la toma de decisiones sobre riesgos de seguridad de la información?","35. ¿Considera usted que los empleados conocen a quién reportar un incidente de seguridad?","36. ¿Cree que se promueve una cultura de “seguridad como responsabilidad compartida”?","37. ¿Considera que los mensajes de concienciación (ej. phishing, contraseñas seguras) son frecuentes y claros?"]},{"domain":"Monitoreo y mejora continua","questions":["38. ¿Cree Usted que los riesgos se monitorean de manera continua con apoyo de herramientas tecnológicas (ej. SIEM, EDR, monitoreo en tiempo real)?","39. ¿Cree que se documentan y analizan los incidentes de seguridad ocurridos en la organización?","40. ¿Considera usted que existen auditorías o revisiones periódicas para verificar la eficacia de los controles implementados?","41. ¿Cree que se aplican indicadores de desempeño (KPI/KRI) para evaluar el sistema de gestión de riesgos?","42. ¿Cree Usted que los resultados de auditorías internas son compartidos con la alta dirección?","43. ¿Considera usted que se toman en cuenta registros históricos, o lecciones aprendidas en el análisis de los riesgos?","44. ¿Considera que la organización evalúa periódicamente la eficacia de sus controles frente a riesgos de seguridad de la información?","45. ¿Cree que los riesgos derivados de proveedores y terceros son gestionados y monitoreados regularmente?"]},{"domain":"Comentarios Finales","questions":[{"type":"textarea","name":"q46_comentario","label":"46. ¿Tiene algún comentario adicional sobre la gestión de riesgos en la organización?"},{"type":"textarea","name":"q47_mejora","label":"47. ¿Qué oportunidades de mejora considera más importantes?"}]}];
     const options = ['Totalmente en desacuerdo', 'En desacuerdo', 'Ni de acuerdo ni en desacuerdo', 'De acuerdo', 'Totalmente de acuerdo'];
 
     function generateQuestions() {
@@ -182,7 +181,7 @@
         e.preventDefault();
         if (!validateSection()) return;
         
-        if (GOOGLE_APPS_SCRIPT_URL === 'PEGA_AQUI_LA_URL_DE_TU_WEB_APP') {
+        if (GOOGLE_APPS_SCRIPT_URL.includes('PEGA_AQUI')) {
             alert('Error de configuración: La URL del script de Google no ha sido establecida en el archivo HTML.');
             return;
         }
@@ -200,25 +199,18 @@
         document.getElementById('submission-loader').classList.remove('hidden');
         document.getElementById('submission-content').classList.add('hidden');
 
-
         // Enviar datos a Google Apps Script
         fetch(GOOGLE_APPS_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
             cache: 'no-cache',
             headers: {
-                // *** FIX ***
-                // Se cambia 'Content-Type' a 'text/plain' para evitar la solicitud de pre-vuelo (preflight)
-                // de CORS, que es la causa del 'NetworkError'. El script de Google puede seguir
-                // interpretando el cuerpo de la solicitud como un JSON sin problemas.
                 'Content-Type': 'text/plain',
             },
             body: JSON.stringify(data),
             redirect: 'follow',
         })
         .then(res => {
-            // Con 'no-cors', la respuesta es opaca y no podemos confirmar el éxito desde el servidor.
-            // Sin embargo, si la promesa se resuelve, significa que el navegador envió la solicitud.
             console.log("Solicitud de envío completada.");
             document.getElementById('submission-loader').classList.add('hidden');
             document.getElementById('submission-content').classList.remove('hidden');
@@ -226,9 +218,8 @@
         .catch(err => {
             console.error('Error de red al intentar enviar los datos:', err);
             thankYouMessage.querySelector('h2').textContent = 'Error en el envío';
-            thankYouMessage.querySelector('p').textContent = 'No se pudieron enviar sus respuestas. Esto puede deberse a un problema de red, un bloqueador de anuncios o una configuración incorrecta de la URL del script. Por favor, verifique y reintente.';
+            thankYouMessage.querySelector('p').textContent = 'No se pudieron enviar sus respuestas. Esto puede deberse a un problema de red o una configuración incorrecta. Por favor, reintente.';
             thankYouMessage.querySelector('svg').classList.add('text-red-500');
-            thankYouMessage.querySelector('svg').classList.remove('text-green-500');
             
             document.getElementById('submission-loader').classList.add('hidden');
             document.getElementById('submission-content').classList.remove('hidden');
@@ -239,4 +230,3 @@
 </script>
 </body>
 </html>
-
