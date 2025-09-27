@@ -41,7 +41,7 @@
     <div id="dashboard-content" class="hidden">
         <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-40">
             <div class="flex items-center space-x-4">
-                <img src="https://www.citypng.com/public/uploads/preview/hd-official-coca-cola-company-logo-png-701751694778501cwpnlq6cxs.png" alt="Logo" class="h-10">
+                <img src="https://logodownload.org/wp-content/uploads/2014/09/coca-cola-logo-1.png" alt="Logo" class="h-10">
                 <h1 class="text-2xl font-bold text-gray-800">Dashboard Profesional de Análisis de Riesgos</h1>
             </div>
             <div>
@@ -248,12 +248,11 @@
     const domainMapping = {"Conocimiento General de Políticas":{"start":4,"end":5},"Contexto organizacional y activos":{"start":6,"end":12},"Identificación de amenazas y vulnerabilidades":{"start":13,"end":18},"Evaluación del riesgo":{"start":19,"end":25},"Tratamiento del riesgo":{"start":26,"end":31},"Comunicación y concienciación":{"start":32,"end":37},"Monitoreo y mejora continua":{"start":38,"end":45}};
     const questionLabels = {"q4":"4. ¿Considera que la organización cuenta con alguna política de riesgo?","q5":"5. ¿Conoce las políticas de riesgo?","q6":"6. ¿Considera que la organización tiene mapeado sus diferentes activos de información correspondientes a TI identificando sus activos críticos y no críticos?","q7":"7. ¿Dentro de la organización existe un inventario actualizado de activos de TI y sistemas de información?","q8":"8. ¿Considera que existen lineamientos definidos dentro de la organización para la clasificación de activos (hardware, software, personas, información digital, información física, instalaciones, servicios)?","q9":"9. ¿Dentro de la organización los activos de información (hardware, software, información física, digital, etc.) cuentan con responsables formalmente asignados?","q10":"10. ¿Considera que existen criterios de clasificación de la información dentro de la organización (confidencial, interna, pública, secreta y restringida)?","q11":"11. ¿Considera que se revisa periódicamente la criticidad de los activos frente a los objetivos de la organización?","q12":"12. ¿En su opinión sobre los riesgos identificados dentro de la organización, considera que es escuchada y valorada?","q13":"13. ¿Dentro de la organización se identifica de manera sistemática las amenazas que pueden afectar la información (fraude, ciberataques, sabotaje, errores humanos)?","q14":"14. ¿Cree usted que se mantienen registros de vulnerabilidades técnicas detectadas en los sistemas (parches, software desactualizado, malas configuraciones)?","q15":"15. ¿Considera que los empleados son conscientes de las amenazas relacionadas con el mal uso de la información?","q16":"16. ¿Cree que se evalúan riesgos derivados de proveedores y terceros?","q17":"17. ¿Cree usted que existe una acción preventiva contra el riesgo de insiders dentro de la organización?","q18":"18. ¿Está usted de acuerdo que la organización realiza ejercicios de simulación de incidentes para identificar debilidades?","q19":"19. ¿Cree que existe una metodología formal para evaluar riesgos de seguridad de la información?","q20":"20. ¿Considera Usted que existe una metodología definida para evaluar la probabilidad e impacto de los riesgos?","q21":"21. ¿Considera que se priorizan los riesgos de acuerdo con su criticidad para la continuidad de la organización?","q22":"22. ¿Cree que las decisiones estratégicas de la organización tienen en cuenta los riesgos relevantes de confidencialidad, disponibilidad y seguridad de la información?","q23":"23. ¿Cree que la organización revisa por lo menos, una vez al año, la matriz de riesgos con el fin de actualizarla?","q24":"24. ¿Considera que en la organización se contemplan riesgos emergentes (ej. inteligencia artificial, IoT, nube)?","q25":"25. ¿Considera que los riesgos regulatorios y legales forman parte del análisis de riesgos de seguridad de la información?","q26":"26. ¿Cree usted que la organización define claramente las estrategias de tratamiento de riesgos (mitigar, transferir, aceptar, evitar)?","q27":"27. ¿Considera que se asignan responsables específicos para los planes de acción de los riesgos críticos identificados?","q28":"28. ¿Considera que los planes de tratamiento son revisados conforme a lo establecido en la organización y se ajustan según cambios en el entorno?","q29":"29. ¿Considera que se destina presupuesto específico para prevenir los riesgos de seguridad?","q30":"30. ¿Está usted de acuerdo que los responsables de riesgos reporten periódicamente el estado de los planes a la dirección?","q31":"31. ¿Considera usted que la organización contrate seguros con coberturas para riesgos de ciberseguridad?","q32":"32. ¿Considera que la organización comunica los riesgos de seguridad de la información a todos los niveles?","q33":"33. ¿Cree que existen capacitaciones periódicas en gestión de riesgos y ciberseguridad?","q34":"34. ¿Cree que la alta dirección participa activamente en la toma de decisiones sobre riesgos de seguridad de la información?","q35":"35. ¿Considera usted que los empleados conocen a quién reportar un incidente de seguridad?","q36":"36. ¿Cree que se promueve una cultura de “seguridad como responsabilidad compartida”?","q37":"37. ¿Considera que los mensajes de concienciación (ej. phishing, contraseñas seguras) son frecuentes y claros?","q38":"38. ¿Cree Usted que los riesgos se monitorean de manera continua con apoyo de herramientas tecnológicas (ej. SIEM, EDR, monitoreo en tiempo real)?","q39":"39. ¿Cree que se documentan y analizan los incidentes de seguridad ocurridos en la organización?","q40":"40. ¿Considera usted que existen auditorías o revisiones periódicas para verificar la eficacia de los controles implementados?","q41":"41. ¿Cree que se aplican indicadores de desempeño (KPI/KRI) para evaluar el sistema de gestión de riesgos?","q42":"42. ¿Cree Usted que los resultados de auditorías internas son compartidos con la alta dirección?","q43":"43. ¿Considera usted que se toman en cuenta registros históricos, o lecciones aprendidas en el análisis de los riesgos?","q44":"44. ¿Considera que la organización evalúa periódicamente la eficacia de sus controles frente a riesgos de seguridad de la información?","q45":"45. ¿Cree que los riesgos derivados de proveedores y terceros son gestionados y monitoreados regularmente?"};
     
-    const questionInterpretations = {
-        q4: { high: (avg, mode, _, pct) => `Con un puntaje promedio de <strong>${avg}</strong>, la percepción es mayoritariamente positiva. El hecho de que la respuesta más común sea <strong>"${mode}"</strong> (con un ${pct}%) sugiere que la mayoría de los empleados cree firmemente que la organización ha establecido y comunicado sus políticas de riesgo.`, low: (avg, mode, _, pct) => `El bajo puntaje promedio de <strong>${avg}</strong> es una señal de alerta. La respuesta predominante, <strong>"${mode}"</strong> (${pct}%), indica una falta de conciencia generalizada sobre la existencia de políticas de riesgo, lo que representa un riesgo fundamental de gobernanza.`, mid: (avg, mode, _, pct) => `Un promedio de <strong>${avg}</strong> y una respuesta frecuente de <strong>"${mode}"</strong> (${pct}%) denotan una percepción mixta. Esto puede significar que las políticas existen pero su comunicación no ha sido efectiva en todos los niveles, o que no son fácilmente accesibles.` },
-        q5: { high: (avg, mode, _, pct) => `Un excelente promedio de <strong>${avg}</strong>, apoyado por una mayoría (${pct}%) que responde <strong>"${mode}"</strong>, demuestra que las políticas de riesgo son conocidas por el personal, indicando una comunicación y capacitación efectivas.`, low: (avg, mode, _, pct) => `Un promedio tan bajo como <strong>${avg}</strong> es preocupante. Aunque las políticas existan, el hecho de que la respuesta más común sea <strong>"${mode}"</strong> (${pct}%) sugiere que no han sido asimiladas por los empleados, haciéndolas ineficaces en la práctica.`, mid: (avg, mode, _, pct) => `El puntaje promedio de <strong>${avg}</strong> indica una conciencia parcial. Que la respuesta dominante sea <strong>"${mode}"</strong> (${pct}%) puede significar que la comunicación de las políticas llega solo a ciertos departamentos o roles, pero no es universal.` },
-        q6: { high: (avg, mode, _, pct) => `Con un promedio de <strong>${avg}</strong> y una respuesta mayoritaria de <strong>"${mode}"</strong> (${pct}%), se percibe que la organización tiene un buen entendimiento y mapeo de sus activos críticos, lo cual es fundamental para una protección eficaz.`, low: (avg, mode, _, pct) => `Un promedio bajo de <strong>${avg}</strong> señala una deficiencia crítica. Si la percepción más común es <strong>"${mode}"</strong> (${pct}%), significa que la organización no puede proteger adecuadamente sus activos porque no los tiene claramente identificados.`, mid: (avg, mode, _, pct) => `Un puntaje de <strong>${avg}</strong> sugiere una conciencia parcial. La respuesta más frecuente, <strong>"${mode}"</strong> (${pct}%), podría indicar que si bien los activos más obvios están identificados, podría haber brechas en el mapeo de activos intangibles o de información.` },
-        // ... (Se omiten las demás interpretaciones por brevedad, pero la lógica sigue el mismo patrón)
-        default: { high: (avg, mode, _, pct) => `Con un promedio de <strong>${avg}</strong> y una respuesta mayoritaria de <strong>"${mode}"</strong> (${pct}%), la percepción sobre este punto es generalmente positiva, indicando una fortaleza.`, low: (avg, mode, _, pct) => `El bajo puntaje promedio de <strong>${avg}</strong>, junto con una respuesta frecuente de <strong>"${mode}"</strong> (${pct}%), señala una clara área de oportunidad que requiere atención.`, mid: (avg, mode, _, pct) => `Un puntaje promedio de <strong>${avg}</strong> sugiere una percepción mixta o neutral. La respuesta más común, <strong>"${mode}"</strong> (${pct}%), indica que no hay un consenso claro, lo que amerita una investigación más profunda.` }
+    const expertInterpretations = {
+        q4: (percentages) => `El análisis de distribución muestra una polarización preocupante. Aunque un <strong>${(percentages[4] + percentages[5]).toFixed(1)}%</strong> combinado percibe la existencia de una política de riesgos (<strong>${percentages[4].toFixed(1)}%</strong> 'De acuerdo' y <strong>${percentages[5].toFixed(1)}%</strong> 'Totalmente de acuerdo'), este grupo no representa una mayoría decisiva. Técnicamente, el <strong>${percentages[3].toFixed(1)}%</strong> en 'Neutral' sugiere una falla en la comunicación; estos empleados no pueden cumplir políticas que desconocen. Más crítico aún es el <strong>${(percentages[1] + percentages[2]).toFixed(1)}%</strong> en desacuerdo, lo cual indica que una parte significativa de la fuerza laboral opera sin un marco de gobernanza de riesgos reconocido, constituyendo un riesgo operacional en sí mismo.`,
+        q5: (percentages) => `Los resultados indican una brecha significativa entre la existencia de políticas y su conocimiento efectivo. Solo un <strong>${(percentages[4] + percentages[5]).toFixed(1)}%</strong> de los encuestados afirma conocerlas. El grupo más grande, un <strong>${percentages[3].toFixed(1)}%</strong>, se posiciona en 'Neutral', lo que en términos de seguridad equivale a un "no sé", un estado inaceptable para un control tan fundamental. El <strong>${(percentages[1] + percentages[2]).toFixed(1)}%</strong> que admite no conocerlas confirma una deficiencia sistémica en los programas de concienciación y comunicación interna. Una política desconocida es una política inexistente en la práctica.`,
+        q6: (percentages) => `La percepción sobre el mapeo de activos críticos es mixta y revela una madurez intermedia. Un <strong>${(percentages[4] + percentages[5]).toFixed(1)}%</strong> acumulado ('De acuerdo' y 'Totalmente de acuerdo') indica que hay confianza en una parte de la organización. Sin embargo, el considerable <strong>${percentages[3].toFixed(1)}%</strong> 'Neutral' y el <strong>${(percentages[1] + percentages[2]).toFixed(1)}%</strong> en desacuerdo sugieren que el inventario de activos de información puede ser incompleto, probablemente centrado en infraestructura de TI tradicional (servidores, redes) mientras se omiten activos de datos no estructurados, propiedad intelectual o sistemas OT, que son igualmente o más críticos.`,
+        default: (percentages) => `La distribución de respuestas muestra una tendencia clara. Un <strong>${(percentages[4] + percentages[5]).toFixed(1)}%</strong> de los participantes muestra una percepción positiva (<strong>${percentages[4].toFixed(1)}%</strong> 'De acuerdo', <strong>${percentages[5].toFixed(1)}%</strong> 'Totalmente de acuerdo'). Por otro lado, un <strong>${(percentages[1] + percentages[2]).toFixed(1)}%</strong> expresa desacuerdo (<strong>${percentages[2].toFixed(1)}%</strong> 'En desacuerdo', <strong>${percentages[1].toFixed(1)}%</strong> 'Totalmente en desacuerdo'). El <strong>${percentages[3].toFixed(1)}%</strong> restante se mantiene 'Neutral', lo que puede indicar indiferencia, falta de conocimiento, o una percepción de que los controles se aplican de manera inconsistente. El balance de estas cifras es clave para determinar la madurez real de este control.`
     };
 
     function initializeDashboard() {
@@ -497,7 +496,6 @@
     function renderQuestionDetailAnalysis(data) {
         const container = document.getElementById('question-detail-analysis');
         const selectedQuestionKey = document.getElementById('question-selector').value;
-        const answerLabels = ['Totalmente en desacuerdo', 'En desacuerdo', 'Neutral', 'De acuerdo', 'Totalmente de acuerdo'];
 
         if (data.length === 0) {
             container.innerHTML = "<p>No hay datos para analizar esta pregunta con los filtros actuales.</p>";
@@ -509,31 +507,30 @@
             container.innerHTML = "<p>No hay respuestas válidas para esta pregunta.</p>";
             return;
         }
-
-        const average = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+        const answerLabels = ['Totalmente en desacuerdo', 'En desacuerdo', 'Neutral', 'De acuerdo', 'Totalmente de acuerdo'];
         const counts = scores.reduce((acc, score) => { acc[score] = (acc[score] || 0) + 1; return acc; }, {});
+        
         const modeEntry = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
         const mode = modeEntry ? parseInt(modeEntry[0]) : null;
         const modeLabel = mode ? answerLabels[mode - 1] : "N/A";
         const modeCount = mode ? modeEntry[1] : 0;
         const modePercentage = ((modeCount / scores.length) * 100).toFixed(1);
 
-        const interpretations = questionInterpretations[selectedQuestionKey] || questionInterpretations.default;
+        const percentages = {
+            1: ((counts[1] || 0) / scores.length) * 100,
+            2: ((counts[2] || 0) / scores.length) * 100,
+            3: ((counts[3] || 0) / scores.length) * 100,
+            4: ((counts[4] || 0) / scores.length) * 100,
+            5: ((counts[5] || 0) / scores.length) * 100,
+        };
         
-        let specificInterpretation;
-        if (average > 3.5) {
-            specificInterpretation = interpretations.high(average, modeLabel, modeCount, modePercentage);
-        } else if (average < 2.5) {
-            specificInterpretation = interpretations.low(average, modeLabel, modeCount, modePercentage);
-        } else {
-            specificInterpretation = interpretations.mid(average, modeLabel, modeCount, modePercentage);
-        }
+        const interpretationFunction = expertInterpretations[selectedQuestionKey] || expertInterpretations.default;
+        const specificInterpretation = interpretationFunction(percentages);
 
         container.innerHTML = `
-            <p><strong>Promedio:</strong> <span class="font-bold text-lg text-red-600">${average} / 5</span></p>
             <p><strong>Respuesta más común:</strong> "${modeLabel}" (${modeCount} respuestas, ${modePercentage}%)</p>
             <hr class="my-3">
-            <p class="text-base"><strong>Interpretación Detallada:</strong></p>
+            <p class="text-base"><strong>Interpretación Técnica:</strong></p>
             <p>${specificInterpretation}</p>
         `;
     }
@@ -706,38 +703,90 @@
 
     document.getElementById('export-pdf-btn').addEventListener('click', () => {
         if (!allData.length) return;
+        
+        if (typeof window.jspdf === 'undefined' || typeof window.html2canvas === 'undefined') {
+            alert("Error: Librerías para exportar a PDF no cargaron. Recargue la página.");
+            return;
+        }
+
         const { jsPDF } = window.jspdf;
         const activeTab = document.querySelector('.tab-content.active');
         if (!activeTab) return;
+
         const pdfTitle = `Reporte de Riesgos - ${document.querySelector('.tab-button.active').textContent.trim()}`;
         
         loadingText.textContent = 'Generando PDF, por favor espere...';
         loadingContainer.classList.remove('hidden');
         analyticsSection.classList.add('hidden');
         
-        html2canvas(activeTab, { scale: 2, windowWidth: activeTab.scrollWidth, windowHeight: activeTab.scrollHeight }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png', 1.0);
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            let pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            let heightLeft = pdfHeight;
-            let position = 25;
-
-            pdf.text(pdfTitle, 10, 15);
-            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-            heightLeft -= pdf.internal.pageSize.getHeight();
-
-            while (heightLeft > 0) {
-              position = heightLeft - pdfHeight - 25;
-              pdf.addPage();
-              pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-              heightLeft -= pdf.internal.pageSize.getHeight();
+        // Temporarily disable chart animations for consistent rendering
+        if (window.Chart && Chart.defaults) {
+            Chart.defaults.animation = false;
+        }
+        Object.values(charts).forEach(chart => {
+            if (chart && typeof chart.update === 'function') {
+                chart.update('none');
             }
-            
-            pdf.save(`reporte_analisis_riesgos - ${new Date().toISOString().slice(0,10)}.pdf`);
-            loadingContainer.classList.add('hidden');
-            analyticsSection.classList.remove('hidden');
         });
+
+        setTimeout(() => {
+            html2canvas(activeTab, { scale: 1.5, useCORS: true }).then(canvas => {
+                try {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const imgHeight = canvas.height * pdfWidth / canvas.width;
+                    
+                    let heightLeft = imgHeight;
+                    let position = 15; // Initial top margin for content
+                    
+                    pdf.setFontSize(16);
+                    pdf.text(pdfTitle, 10, 10);
+                    
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                    heightLeft -= (pageHeight - position);
+
+                    while (heightLeft > 0) {
+                        position -= pageHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+                    
+                    pdf.save(`reporte_analisis_riesgos-${new Date().toISOString().slice(0,10)}.pdf`);
+                } catch (e) {
+                    console.error("Error al crear el PDF:", e);
+                    alert("Ocurrió un error al crear el PDF.");
+                } finally {
+                    // Re-enable animations
+                    if (window.Chart && Chart.defaults) {
+                        Chart.defaults.animation = true;
+                    }
+                     Object.values(charts).forEach(chart => {
+                        if (chart && typeof chart.update === 'function') {
+                            chart.update();
+                        }
+                    });
+                    loadingContainer.classList.add('hidden');
+                    analyticsSection.classList.remove('hidden');
+                }
+            }).catch(error => {
+                console.error('Error con html2canvas:', error);
+                alert("Error al capturar la imagen del reporte.");
+                if (window.Chart && Chart.defaults) {
+                    Chart.defaults.animation = true;
+                }
+                 Object.values(charts).forEach(chart => {
+                    if (chart && typeof chart.update === 'function') {
+                        chart.update();
+                    }
+                });
+                loadingContainer.classList.add('hidden');
+                analyticsSection.classList.remove('hidden');
+            });
+        }, 500);
     });
 
 </script>
